@@ -12,6 +12,8 @@ Description:
    structure. Its natural application is to learn co-expression networks in 
    single-cell RNA-seq data.
 License: Artistic-2.0
+Imports: copula
+Suggests: knitr
 Encoding: UTF-8
 VignetteBuilder: knitr
 LazyData: true
