@@ -4,7 +4,7 @@ Title: Structure Learning for ZINB Data
 Version: 0.1.0
 Authors@R: 
     c(person("Davide","Risso", role=c("aut","cre", "cph"), 
-          email="risso.davide@gmail.com" )
+          email="risso.davide@gmail.com"))
 Description:
    Implements a general and flexible zero-inflated negative binomial model that
    can be used to infer a graph structure from multivariate zero-inflated data.
@@ -23,3 +23,4 @@ biocViews:
   Sequencing,
   SingleCell
 BugReports: https://github.com/drisso/zinbwave/issues
+RoxygenNote: 6.1.0
