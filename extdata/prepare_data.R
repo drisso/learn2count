@@ -15,15 +15,15 @@ cellidx <- unlist(apply(oe@clusterLabels[,oe@lineages$Lineage1], 2, function(x) 
 
 cl4 <- cl3[,cellidx]
 
-tfs <- read.table("https://raw.githubusercontent.com/rufletch/p63-HBC-diff/master/ref/ATFDB_mm_TF.txt",
-                  stringsAsFactors = FALSE)[,1]
-
-genes <- intersect(rownames(cl4), tfs)
-length(genes)
-head(genes)
-
-cl5 <- cl4[genes,]
-se <- se_filtered[rownames(cl5),colData(cl5)$samples]
+# tfs <- read.table("https://raw.githubusercontent.com/rufletch/p63-HBC-diff/master/ref/ATFDB_mm_TF.txt",
+#                   stringsAsFactors = FALSE)[,1]
+#
+# genes <- intersect(rownames(cl4), tfs)
+# length(genes)
+# head(genes)
+#
+# cl5 <- cl4[genes,]
+se <- se_filtered[,colData(cl4)$samples]
 
 datamat <- t(assay(se))
 any(rowSums(datamat)==0)
