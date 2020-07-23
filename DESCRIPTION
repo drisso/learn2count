@@ -1,18 +1,20 @@
 Package: zinbgraph
 Type: Package
 Title: Structure Learning for ZINB Data
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: 
     c(person("Davide","Risso", role=c("aut","cre", "cph"), 
-          email="risso.davide@gmail.com"))
+          email="risso.davide@gmail.com"),
+      person("Kim", "Hue Nguyen", role=c("aut", "cph"),
+          email="kimhuenguyen90@gmail.com"))
 Description:
    Implements a general and flexible zero-inflated negative binomial model that
    can be used to infer a graph structure from multivariate zero-inflated data.
    The model accounts for a set of covariates in addition to the graph 
-   structure. Its natural application is to learn co-expression networks in 
+   structure. Its natural application is to learn regularory networks in 
    single-cell RNA-seq data.
 License: Artistic-2.0
-Imports: copula
+Imports: zinbwave
 Suggests: knitr
 Encoding: UTF-8
 VignetteBuilder: knitr
@@ -25,4 +27,4 @@ biocViews:
   Sequencing,
   SingleCell
 BugReports: https://github.com/drisso/zinbgraph/issues
-RoxygenNote: 6.1.0
+RoxygenNote: 7.1.0

@@ -1,5 +1,5 @@
 # Find a single dispersion parameter for a count by 1-dimensional optimization of the likelihood
-# Given a vector of count, this function computes a single dispersion parameter 
+# Given a vector of count, this function computes a single dispersion parameter
 # (log(theta)) the counts under a  negative binomial
 #' (NB) model. The NB distribution is parametrized by two
 #' parameters: the mean value and the dispersion of the negative binomial distribution
@@ -11,26 +11,24 @@
 #'   phi=1/theta is then called the dispersion parameter). We follow the
 #'   convention that the variance of the NB variable with mean mu and dispersion
 #'   theta is mu + mu^2/theta.
-
-
 nb.OptimizeDispersion <- function( mu,Y,n) {
-  
-  g <- optimize(f=nb.loglik.dispersion, Y=Y, mu=mu, 
+
+  g <- optimize(f=nb.loglik.dispersion, Y=Y, mu=mu,
                 maximum=TRUE,interval=c(-100,100))
-  
+
   zeta.op <- g$maximum
-  
+
   zeta.ot <- try(optim( par=zeta.op, fn=nb.loglik.dispersion ,
                         gr=nb.loglik.dispersion.gradient,mu=mu,
-                        Y=Y,control=list(fnscale=-1,trace=0), 
+                        Y=Y,control=list(fnscale=-1,trace=0),
                         method="BFGS")$par,silent = TRUE)
   if (class(zeta.ot) != "try-error"){
     zeta <- zeta.ot
   }else{
     zeta <- zeta.op
   }
-  
-  
+
+
   zeta <- rep((zeta),n)
   zeta
 }
@@ -50,19 +48,17 @@ nb.OptimizeDispersion <- function( mu,Y,n) {
 #'   phi=1/theta is then called the dispersion parameter). We follow the
 #'   convention that the variance of the NB variable with mean mu and dispersion
 #'   theta is mu + mu^2/theta.
-#' 
+#'
 #' @export
 #' @return the log-likelihood of the model.
 #' @importFrom stats dnbinom optim optimize rbinom rnbinom runif var
-#################################################
-
 nb.loglik <- function(Y, mu, theta) {
-  
+
   # log-probabilities of counts under the NB model
   logPnb <- suppressWarnings(dnbinom(Y, size = theta, mu = mu, log = TRUE))
-  
+
   sum(logPnb)
-  
+
 }
 
 
@@ -74,7 +70,7 @@ nb.loglik <- function(Y, mu, theta) {
 #' this function computes the sum of the log-probabilities of the counts under
 #' the NB model. The dispersion parameter is provided to the function through
 #' zeta = log(theta), where theta is sometimes called the inverse dispersion
-#' parameter. 
+#' parameter.
 #'
 #' @param zeta a vector, the log of the inverse dispersion parameters of the
 #'   negative binomial model
@@ -84,12 +80,10 @@ nb.loglik <- function(Y, mu, theta) {
 #' @export
 #' @seealso \code{\link{zinb.loglik}}.
 #' @return the log-likelihood of the model.
-#####################################
-
 nb.loglik.dispersion <- function(zeta, Y, mu){
-  
+
   nb.loglik(Y, mu, exp(zeta))
-  
+
 }
 
 #' Parse ZINB regression model
@@ -102,25 +96,24 @@ nb.loglik.dispersion <- function(zeta, Y, mu){
 #'
 #' @param alpha the vectors of parameters c(a.mu) concatenated
 #' @param A.mu matrix of the model (1,X_K\backslash\{s\},T, default=empty)
-#' @return A list with slot \code{logMu}, 
+#' @return A list with slot \code{logMu},
 #' @seealso \code{\link{nb.loglik.regression}}
-##############################################################
 nb.regression.parseModel <- function(alpha, A.mu) {
-  
+
   n <- nrow(A.mu)
   logMu <-0
   dim.alpha <- rep(0,1)
   i <- 0
-  
+
   j <- ncol(A.mu)
   if (j>0) {
     logMu <- logMu + A.mu %*% alpha[(i+1):(i+j)]
     dim.alpha[1] <- j
   }
-  
-  
+
+
   return(list(logMu=logMu, dim.alpha=dim.alpha))
- 
+
 }
 
 
@@ -135,21 +128,20 @@ nb.regression.parseModel <- function(alpha, A.mu) {
 #' @param A.mu matrix of the model (see Details, default=empty)
 #' @param C.theta matrix of the model (log(\theta), default=zero)
 #' @details The regression model is parametrized as follows: \deqn{log(\mu) =
-#'   A_\mu * a_\mu}  \deqn{log(\theta) = C_\theta} 
+#'   A_\mu * a_\mu}  \deqn{log(\theta) = C_\theta}
 #'   where \eqn{\mu, \theta} are
 #'   respectively the vector of mean parameters of the NB distribution,
 #'    and the vector of inverse   dispersion parameters.  The
 #'   log-likelihood of a vector of parameters \eqn{\alpha = a_\mu}
 #' @return the log-likelihood.
-#############################################################
 nb.loglik.regression <- function(alpha, Y,
                                    A.mu = matrix(nrow=length(Y), ncol=0),
                                    C.theta = matrix(0, nrow=length(Y), ncol=1)) {
-  
+
   # Parse the model
   r <- nb.regression.parseModel(alpha=alpha,
                                   A.mu = A.mu)
-  
+
   # Call the log likelihood function
   z <- nb.loglik(Y, exp(r$logMu), exp(C.theta))
   #return z
@@ -169,23 +161,22 @@ nb.loglik.regression <- function(alpha, Y,
 #'   \code{\link{nb.loglik.regression}}.
 #' @seealso \code{\link{nb.loglik.regression}}
 #' @return The gradient of the log-likelihood.
-#############################################################
 nb.loglik.regression.gradient <- function(alpha, Y,
                                             A.mu = matrix(nrow=length(Y), ncol=0),
                                             C.theta = matrix(0, nrow=length(Y), ncol=1)) {
-  
+
   # Parse the model
   r <- nb.regression.parseModel(alpha=alpha,
                                   A.mu = A.mu)
-  
+
   theta <- exp(C.theta)
   mu <- exp(r$logMu)
   n <- length(Y)
-  
+
   # Check what we need to compute,
   # depending on the variables over which we optimize
-  need.wres.mu <- r$dim.alpha[1] >0 
-  
+  need.wres.mu <- r$dim.alpha[1] >0
+
   # Compute the partial derivatives we need
   ## w.r.t. mu
   if (need.wres.mu) {
@@ -194,36 +185,34 @@ nb.loglik.regression.gradient <- function(alpha, Y,
       (Y + theta)/(mu + theta)
     wres_mu <- as.vector(wres_mu)
   }
-  
-  
+
+
   # Make gradient
   grad <- numeric(0)
-  
+
   ## w.r.t. a_mu
   if (r$dim.alpha[1] >0) {
     grad <- c(grad , colSums(wres_mu * A.mu) )
   }
-  
-  
-  
+
+
+
   grad
 }
 
-#####################
 nb.loglik.dispersion.gradient <- function(zeta, Y, mu) {
   theta <- exp(zeta)
-  
+
   grad <- 0
   grad <- grad + sum( theta * (digamma(Y + theta) - digamma(theta) +
                                  zeta - log(mu + theta) + 1 -
                                  (Y + theta)/(mu + theta) ) )
-  
+
   grad
 }
-#########optimal function
 
 
-
+#' @export
 nb.optim_funnoT <- function(beta_mu, Y, X_mu, zeta, n) {
   optim( fn=nb.loglik.regression,
          gr=nb.loglik.regression.gradient,

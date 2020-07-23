@@ -1,10 +1,12 @@
-# generate data matrix (nxp) under NB assumption based on Karlis (or LPGM. 2013) with adjancency matrix B, 
-# @param n number of samples
-# @param p number of variables (nodes)
-# @param mu mean of negative binomial 
-# @param mu.nois mean of noise
-# @param theta dispersion parameter of negative binomial, where $var=\mu+\mu^2/theta$
-
+#' Generate negatibe binomial (NB) data
+#'
+#' Generatedata matrix (nxp) under NB assumption based on Karlis (or LPGM. 2013) with adjancency matrix B.
+#' @param n number of samples
+#' @param p number of variables (nodes)
+#' @param mu mean of negative binomial
+#' @param mu.nois mean of noise
+#' @param theta dispersion parameter of negative binomial, where $var=\mu+\mu^2/theta$
+#' @export
 nbinom.Simdata <- function(n, p,B,mu,mu.nois,theta){
   set.seed(123)
 # create "adjacency" matrix A from the adjacency matrix B
@@ -15,14 +17,14 @@ nbinom.Simdata <- function(n, p,B,mu,mu.nois,theta){
   A <- diag(1,nrow=nrow(B),ncol=ncol(B))
   for(i in 1:(nrow(B)-1)){
     for( j in (i+1):ncol(B)){
-      
+
       if(B[i,j] == 1){
         tmp <- rep(0,nrow(B))
         tmp[c(i,j)] <- 1
-        A <- cbind(A,tmp)				
+        A <- cbind(A,tmp)
       }
-      
-    }  
+
+    }
   }
 
  ## vector mean
@@ -33,8 +35,8 @@ nbinom.Simdata <- function(n, p,B,mu,mu.nois,theta){
     ## data matrix X
     Y <-  matrix(unlist(do.call(rbind, parallel::mclapply(Y.mu,function(i) {rnbinom(n,mu=i,theta)}))),length(Y.mu),n)
     X <- A%*%Y
-    # add the labmda.c to all the nodes. 
+    # add the labmda.c to all the nodes.
     X <- X + matrix(unlist(do.call(rbind, parallel::mclapply(rep(mu.nois,p),function(i) {rnbinom(n,mu=i,theta)}))),p,n)
-    
+
     return(t(X))
 }
