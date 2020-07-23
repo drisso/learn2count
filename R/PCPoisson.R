@@ -1,13 +1,11 @@
-
 #' This function estimates adjacency matrix of a Poisson models given a matrix of counts, using glm.
 #'
 #' @param alpha the sisnificant level tests
 #' @param X the matrix of counts.
 #' @param maxcard the uper bound for cardinalities of conditional sets K
 #' extend=TRUE if we consider the union of tests
-
 #' @return the adj matrix.
-
+#' @export
 pois.wald <- function(X,maxcard,alpha,extend){
   p <- ncol(X)
   n <- nrow(X)
@@ -38,14 +36,14 @@ pois.wald <- function(X,maxcard,alpha,extend){
       }
       return(adj[,i])
     }
-   
+
     if (extend == TRUE){
       adj <- V + t(V)
       adj[which(adj != 0)] <-1
     }else
-     
+
       adj <- V * t(V)
-    
+
     ncard <- ncard + 1
 
   }

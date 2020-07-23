@@ -1,12 +1,11 @@
-
 #' This function estimates adjacency matrix of a zinb1 models given a matrix of counts, using optim.
 #' zinb1 models are zinb models with the structure is infered from both mu and pi
 #' @param alpha the sisnificant level tests
 #' @param X the matrix of counts.
 #' @param maxcard the uper bound for cardinalities of conditional sets K
 #' extend=TRUE if we consider the union of tests
-
 #' @return the adj matrix.
+#' @export
 zinb1.noT <- function(X,maxcard,alpha, extend){
   p <- ncol(X)
   n <- nrow(X)
@@ -26,16 +25,16 @@ zinb1.noT <- function(X,maxcard,alpha, extend){
           #1. Estimate zeta
           zeta.i <- rep(mean(X[,i])^2/(var(X[,i])-mean(X[,i])),n)
           #2. Estimate parameters of ZINB model with zeta.i given by the first step
-          fitadd <- try(fitadd <- optim_funnoT (beta_mu= rep(1,p), gamma_pi=rep(1,p), Y=X[,i], 
+          fitadd <- try(fitadd <- optim_funnoT (beta_mu= rep(1,p), gamma_pi=rep(1,p), Y=X[,i],
                                                 X_mu=X[,-i], zeta.i, n),silent = TRUE)
           if(class(fitadd) == "try-error"){
              fit <- glm(X[,i]~X[,-i],family = "poisson")
-             fitadd <- optim_funnoT (beta_mu= fit$coefficients, gamma_pi=rep(1,p), Y=X[,i], 
+             fitadd <- optim_funnoT (beta_mu= fit$coefficients, gamma_pi=rep(1,p), Y=X[,i],
                                     X_mu=X[,-i], zeta.i, n)
             }
-          ####### Calculate loglikelihood at the first iteration with 
+          ####### Calculate loglikelihood at the first iteration with
           #    alpha=fitadd, and C.theta = zeta.i obtained from the above step
-                                                        
+
             local.lik[1] <- zinb.loglik.regression (alpha=fitadd, Y=X[,i],
                                                    A.mu = cbind(rep(1,n),X_mu=X[, -i]),
                                                     A.pi = cbind(rep(1,n),X_mu=X[, -i]),
@@ -46,24 +45,24 @@ zinb1.noT <- function(X,maxcard,alpha, extend){
                                                  A.pi=cbind(rep(1,n),X_mu=X[, -i]))
                 zeta.temp <- zinbOptimizeDispersion ( mu=r$logMu, logitPi=r$logitPi,Y=X[,i],n)
                #2. Estimate parameters of ZINB model with zeta given by the first step
-                fitadd.temp <- optim_funnoT (beta_mu=fitadd[1:p], 
-                                            gamma_pi=fitadd[(p+1):(2*p)],Y=X[,i], 
+                fitadd.temp <- optim_funnoT (beta_mu=fitadd[1:p],
+                                            gamma_pi=fitadd[(p+1):(2*p)],Y=X[,i],
                                             X_mu=X[,-i], zeta.temp, n)
                 local.lik[iter] <- zinb.loglik.regression (alpha=fitadd.temp, Y=X[,i],
                                                            A.mu = cbind(rep(1,n),X_mu=X[,-i]),
                                                            A.pi = cbind(rep(1,n),X_mu=X[, -i]),
                                                            C.theta = zeta.temp)
-                                                              
+
                 if (local.lik[iter] > local.lik[iter-1]){
                    fitadd <- fitadd.temp
                    zeta.i <- zeta.temp
                   }else break
                 if(abs((local.lik[iter]-local.lik[iter-1]) /local.lik[iter-1])< stop.epsilon)
                    break
-                                                              
-                iter <- iter+1  
+
+                iter <- iter+1
                  }
-                                                            
+
              return(zeta.i)
         }, silent = TRUE)
   #)
@@ -81,7 +80,7 @@ zinb1.noT <- function(X,maxcard,alpha, extend){
       zeta.i <- zinbOptimizeDispersion ( mu=r$logMu, logitPi=r$logitPi,Y=X[,i],n)
     }
   }
-  
+
   ############### Estimate adjacency matrix
 
   adj <- matrix(1,p,p)
@@ -96,7 +95,7 @@ zinb1.noT <- function(X,maxcard,alpha, extend){
                                                           "optim_funnoT",
                                                           "zinb.loglik.regression.gradient",
                                                           "zinb.loglik.regression")) %dopar%{
-                                                            
+
     neighbor <- which (adj[, i] == 1)
     if (length(neighbor) >= ncard){
       condset <- combn(neighbor, ncard, FUN = list)
@@ -106,14 +105,14 @@ zinb1.noT <- function(X,maxcard,alpha, extend){
         k <- 1
         while (indcond == FALSE & k <= length(condset.temp)){
            if (neighbor[j] %in% condset.temp[[k]] == FALSE){
-             
+
              # initial value
              beta_mu <- c(glm(X[,i]~scale(X[,c(neighbor[j], condset.temp[[k]])])
                               ,family = "poisson")$coefficients)
              gamma_pi <- rep(0.5,2+ncard)
-             
+
              # fit model with new edges
-               fitadd <- optim_funnoT (beta_mu=beta_mu, gamma_pi, Y=X[,i], 
+               fitadd <- optim_funnoT (beta_mu=beta_mu, gamma_pi, Y=X[,i],
                                     X_mu=scale(X[,c(neighbor[j], condset.temp[[k]])]), zeta[,i], n)
                 # calculate loglikelihood of new model
                 zinb.loglik.add <- zinb.loglik.regression (alpha=fitadd, Y=X[,i],
@@ -122,15 +121,15 @@ zinb1.noT <- function(X,maxcard,alpha, extend){
                                                           C.theta = zeta[,i])
                 # fit model without adding new edges
                 if (length(condset.temp[[k]])>0){
-                    fitnoadd <- optim_funnoT (beta_mu=beta_mu[-2], gamma_pi[-1], Y=X[,i], 
-                                           X_mu=scale(X[, condset.temp[[k]]]), zeta[,i], n) 
+                    fitnoadd <- optim_funnoT (beta_mu=beta_mu[-2], gamma_pi[-1], Y=X[,i],
+                                           X_mu=scale(X[, condset.temp[[k]]]), zeta[,i], n)
                     # calculate loglikelihood of model without adding new edges
                     zinb.loglik.noadd <- zinb.loglik.regression (alpha=fitnoadd, Y=X[,i],
                                                                 A.mu = cbind(rep(1,n),X_mu=scale(X[, condset.temp[[k]]])),
                                                                 A.pi = cbind(rep(1,n),X_mu=scale(X[, condset.temp[[k]]])),
                                                                 C.theta = zeta[,i])
                      }else{
-                          fitnoadd <- optim_funnoT (beta_mu=beta_mu[c(1,2)], gamma_pi, Y=X[,i], 
+                          fitnoadd <- optim_funnoT (beta_mu=beta_mu[c(1,2)], gamma_pi, Y=X[,i],
                                                  X_mu=rep(0,n), zeta[,i], n)
                           # calculate loglikelihood of model without adding new edges
                           zinb.loglik.noadd <- zinb.loglik.regression (alpha=fitadd, Y=X[,i],
@@ -138,9 +137,9 @@ zinb1.noT <- function(X,maxcard,alpha, extend){
                                                                        A.pi = cbind(rep(1,n),rep(0,n)),
                                                                        C.theta = zeta[,i])
                         }
-                        ### Deviance tests                                            
+                        ### Deviance tests
                       goodfit.Deviance <- 2*(zinb.loglik.add-zinb.loglik.noadd  )
-                                                                    
+
                       if (pchisq(goodfit.Deviance,2,lower.tail=FALSE) > alpha){
                           adj[neighbor[j], i] <- 0
                           indcond <- TRUE
@@ -157,7 +156,7 @@ zinb1.noT <- function(X,maxcard,alpha, extend){
       adj[which(adj != 0)] <-1
     }else
       adj <- V * t(V)
-    
+
     ncard <- ncard + 1
   }
   return(adj)

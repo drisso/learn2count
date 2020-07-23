@@ -1,4 +1,3 @@
-
 #' This function estimates adjacency matrix of a NB models given a matrix of counts, using glm.
 #'
 #' @param alpha the sisnificant level tests
@@ -7,7 +6,8 @@
 #' extend=TRUE if we consider the union of tests
 
 #' @return the adj matrix.
-
+#' @export
+#' @importFrom MASS glm.nb negative.binomial
 nb.wald <- function(X,maxcard,alpha, extend){
   p <- ncol(X)
   n <- nrow(X)
@@ -30,14 +30,14 @@ nb.wald <- function(X,maxcard,alpha, extend){
                                  nrow=n, ncol=ncard+1))
               data <- data.frame(cbind(X[,i],X_new))
               colnames(data) <- paste("V", 1:(ncard+2), sep="")
-              fmla <- as.formula(paste("V1 ~ ", paste(colnames(data)[-1], collapse= "+")))    
+              fmla <- as.formula(paste("V1 ~ ", paste(colnames(data)[-1], collapse= "+")))
               fitadd <- try(glm.nb(fmla, data = data,link = "log"),silent = TRUE)
               if (class(fitadd) =="try-error"){
                 fitadd <- glm(X[,i]~scale(X_new),family = negative.binomial(theta = 1))
               }
-              
+
               ########## wald type tests
-            
+
               if (summary(fitadd)$coefficients[2,4] > alpha){
                 adj[neighbor[j], i] <- 0
                 indcond <- TRUE
@@ -51,7 +51,7 @@ nb.wald <- function(X,maxcard,alpha, extend){
     #})
       return(adj[,i])
     }
-    
+
     if (extend == TRUE){
       adj <- adj.est + t(adj.est)
       adj[which(adj != 0)] <-1

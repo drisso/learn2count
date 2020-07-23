@@ -14,7 +14,10 @@ Description:
    structure. Its natural application is to learn regularory networks in 
    single-cell RNA-seq data.
 License: Artistic-2.0
-Imports: zinbwave
+Imports: 
+  zinbwave,
+  MASS,
+  foreach
 Suggests: knitr
 Encoding: UTF-8
 VignetteBuilder: knitr
