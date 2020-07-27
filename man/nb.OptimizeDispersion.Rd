@@ -12,7 +12,7 @@ nb.OptimizeDispersion(mu, Y, n)
 
 \item{Y}{the vector of counts}
 
-\item{theta}{is the vector dispersion parameter of the negative binomial.
+\item{n}{the length of the vector to return
 Note that theta is sometimes called inverse dispersion parameter (and
 phi=1/theta is then called the dispersion parameter). We follow the
 convention that the variance of the NB variable with mean mu and dispersion

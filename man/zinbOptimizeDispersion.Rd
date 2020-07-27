@@ -15,11 +15,7 @@ zinbOptimizeDispersion(mu, logitPi, Y, n)
 
 \item{Y}{the vector of counts}
 
-\item{theta}{is the vector dispersion parameter of the negative binomial.
-Note that theta is sometimes called inverse dispersion parameter (and
-phi=1/theta is then called the dispersion parameter). We follow the
-convention that the variance of the NB variable with mean mu and dispersion
-theta is mu + mu^2/theta.}
+\item{n}{length of the returned vector}
 }
 \description{
 (ZINB) model. The ZINB distribution is parametrized by three
@@ -32,5 +28,5 @@ mu <- seq(10,50,length.out=n)
 logitPi <- rnorm(1)
 zeta <- rnorm(1)
 Y <- rnbinom(n=n, size=exp(zeta), mu=mu)
-zinbOptimizeDispersion ( mu, logitPi,Y,n)
+zinbgraph:::zinbOptimizeDispersion ( mu, logitPi,Y,n)
 }

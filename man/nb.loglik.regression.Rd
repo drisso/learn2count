@@ -18,7 +18,7 @@ nb.loglik.regression(
 
 \item{A.mu}{matrix of the model (see Details, default=empty)}
 
-\item{C.theta}{matrix of the model (log(\theta), default=zero)}
+\item{C.theta}{matrix of the model (\eqn{log(\theta)}, default=zero)}
 }
 \value{
 the log-likelihood.

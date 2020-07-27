@@ -4,9 +4,12 @@
 #' @param n number of samples
 #' @param p number of variables (nodes)
 #' @param mu mean of negative binomial part
-#' @param theta dispersion parameter of negative binomial part, where $var=\mu+\mu^2/theta$
+#' @param theta dispersion parameter of negative binomial part, where \eqn{var=\mu+\mu^2/theta}
 #' @param pi parameter relate to zero part and negative part
+#' @param B adjacency matrix
+#' @param mu.nois mean of noise
 #' @export
+#' @importFrom countreg rzinbinom
 zinb.simdata <- function(n,p,B, mu,mu.nois,theta,pi){
    set.seed(123)
 # create "adjacency" matrix A from the adjacency matrix B

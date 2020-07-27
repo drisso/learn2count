@@ -9,10 +9,11 @@ pois.wald(X, maxcard, alpha, extend)
 \arguments{
 \item{X}{the matrix of counts.}
 
-\item{maxcard}{the uper bound for cardinalities of conditional sets K
-extend=TRUE if we consider the union of tests}
+\item{maxcard}{the uper bound for cardinalities of conditional sets K}
 
 \item{alpha}{the sisnificant level tests}
+
+\item{extend}{TRUE if we consider the union of tests}
 }
 \value{
 the adj matrix.

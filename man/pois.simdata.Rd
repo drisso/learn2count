@@ -11,6 +11,8 @@ pois.simdata(n, p, B, lambda, lambda.c)
 
 \item{p}{number of variables (nodes)}
 
+\item{B}{adjacency matrix}
+
 \item{lambda}{mean of Poisson}
 
 \item{lambda.c}{mean of noise}

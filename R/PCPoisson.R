@@ -3,9 +3,10 @@
 #' @param alpha the sisnificant level tests
 #' @param X the matrix of counts.
 #' @param maxcard the uper bound for cardinalities of conditional sets K
-#' extend=TRUE if we consider the union of tests
+#' @param extend TRUE if we consider the union of tests
 #' @return the adj matrix.
 #' @export
+#' @importFrom stats coefficients
 pois.wald <- function(X,maxcard,alpha,extend){
   p <- ncol(X)
   n <- nrow(X)

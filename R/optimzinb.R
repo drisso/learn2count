@@ -7,19 +7,15 @@
 #'
 #' @param Y the vector of counts
 #' @param mu the vector mean  of the negative binomial
-#' @param theta is the vector dispersion parameter of the negative binomial.
-#'   Note that theta is sometimes called inverse dispersion parameter (and
-#'   phi=1/theta is then called the dispersion parameter). We follow the
-#'   convention that the variance of the NB variable with mean mu and dispersion
-#'   theta is mu + mu^2/theta.
 #' @param logitPi the vector of logit of the probabilities of the zero component
+#' @param n length of the returned vector
 #' @examples
 #' n <- 10
 #' mu <- seq(10,50,length.out=n)
 #' logitPi <- rnorm(1)
 #' zeta <- rnorm(1)
 #' Y <- rnbinom(n=n, size=exp(zeta), mu=mu)
-#' zinbOptimizeDispersion ( mu, logitPi,Y,n)
+#' zinbgraph:::zinbOptimizeDispersion ( mu, logitPi,Y,n)
 zinbOptimizeDispersion <- function( mu, logitPi,Y,n) {
 
   g <- optimize(f=zinb.loglik.dispersion, Y=Y, mu=mu,
@@ -73,18 +69,15 @@ log1pexp <- function (x, c0 = -37, c1 = 18, c2 = 33.3)
 #'
 #' Given the parameters of a ZINB regression model, this function parses the
 #' model and computes the vector of log(mu), logit(pi), and the dimensions of
-#' the different components of the vector of parameters. See
-#' \code{\link{zinb.loglik.regression}} for details of the ZINB regression model
-#' and its parameters.
+#' the different components of the vector of parameters.
 #'
 #' @param alpha the vectors of parameters c(a.mu, a.pi) concatenated
-#' @param A.mu matrix of the model (1,X_K\backslash\{s\},T, default=empty)
-#' @param A.pi matrix of the model (1,X_K\backslash\{s\},T, default=empty)
+#' @param A.mu matrix of the model (default=empty)
+#' @param A.pi matrix of the model (default=empty)
 #' @return A list with slots \code{logMu}, \code{logitPi}, \code{dim.alpha} (a
 #'   vector of length 2 with the dimension of each of the vectors \code{a.mu},
 #'   \code{a.pi}  in \code{alpha}), and \code{start.alpha} (a vector
 #'   of length 2 with the starting indices of the 2 vectors in \code{alpha})
-#' @seealso \code{\link{zinb.loglik.regression}}
 zinb.regression.parseModel <- function(alpha, A.mu,A.pi) {
 
   n <- nrow(A.mu)
@@ -119,7 +112,6 @@ zinb.regression.parseModel <- function(alpha, A.mu,A.pi) {
 #########optimal functions
 
 ###zinb1: there are structures both in $mu$ and in $pi$
-#' @export
 optim_funnoT <- function(beta_mu, gamma_pi, Y, X_mu, zeta, n) {
     optim( fn=zinb.loglik.regression,
            gr=zinb.loglik.regression.gradient,
@@ -131,7 +123,6 @@ optim_funnoT <- function(beta_mu, gamma_pi, Y, X_mu, zeta, n) {
            method="BFGS")$par
 }
 ###zinb0: there are only structures in $mu$
-#' @export
 optim_fun0noT <- function(beta_mu, gamma_pi, Y, X_mu, zeta, n) {
     optim( fn=zinb.loglik.regression,
            gr=zinb.loglik.regression.gradient,
@@ -149,10 +140,10 @@ zinb.loglik <- function(Y, mu, theta, logitPi) {
   logPnb <- suppressWarnings(dnbinom(Y, size = theta, mu = mu, log = TRUE))
 
   # contribution of zero inflation
-  lognorm <- - copula::log1pexp(logitPi)
+  lognorm <- - log1pexp(logitPi)
 
   # log-likelihood
-  sum(logPnb[Y>0]) + sum(logPnb[Y==0] + copula::log1pexp(logitPi[Y==0] -
+  sum(logPnb[Y>0]) + sum(logPnb[Y==0] + log1pexp(logitPi[Y==0] -
                                                            logPnb[Y==0])) + sum(lognorm)
 }
 
@@ -233,7 +224,7 @@ zinb.loglik.regression.gradient <- function(alpha, Y,
   muz <- 1/(1+exp(-r$logitPi))
   clogdens0 <- dnbinom(0, size = theta[Y0], mu = mu[Y0], log = TRUE)
 
-  lognorm <- -r$logitPi - copula::log1pexp(-r$logitPi)
+  lognorm <- -r$logitPi - log1pexp(-r$logitPi)
 
   dens0 <- muz[Y0] + exp(lognorm[Y0] + clogdens0)
 

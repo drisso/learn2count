@@ -5,9 +5,10 @@
 #' @param p number of variables (nodes)
 #' @param lambda mean of Poisson
 #' @param lambda.c mean of noise
+#' @param B adjacency matrix
 #' @export
+#' @importFrom stats rpois
 pois.simdata <- function(n, p,B,lambda,lambda.c){
-   set.seed(123)
 
   # create "adjacency" matrix A from the adjacency matrix B
   if(nrow(B) != ncol(B)){

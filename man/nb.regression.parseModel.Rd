@@ -9,7 +9,7 @@ nb.regression.parseModel(alpha, A.mu)
 \arguments{
 \item{alpha}{the vectors of parameters c(a.mu) concatenated}
 
-\item{A.mu}{matrix of the model (1,X_K\backslash\{s\},T, default=empty)}
+\item{A.mu}{matrix of the model (default=empty)}
 }
 \value{
 A list with slot \code{logMu},

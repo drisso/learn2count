@@ -6,7 +6,7 @@
 #'
 #' @param Y the vector of counts
 #' @param mu the vector mean  of the negative binomial
-#' @param theta is the vector dispersion parameter of the negative binomial.
+#' @param n the length of the vector to return
 #'   Note that theta is sometimes called inverse dispersion parameter (and
 #'   phi=1/theta is then called the dispersion parameter). We follow the
 #'   convention that the variance of the NB variable with mean mu and dispersion
@@ -75,7 +75,6 @@ nb.loglik <- function(Y, mu, theta) {
 #'   negative binomial model
 #' @param Y a vector of counts
 #' @param mu a vector of mean parameters of the negative binomial
-#' @seealso \code{\link{zinb.loglik}}.
 #' @return the log-likelihood of the model.
 nb.loglik.dispersion <- function(zeta, Y, mu){
 
@@ -92,7 +91,7 @@ nb.loglik.dispersion <- function(zeta, Y, mu){
 #' and its parameters.
 #'
 #' @param alpha the vectors of parameters c(a.mu) concatenated
-#' @param A.mu matrix of the model (1,X_K\backslash\{s\},T, default=empty)
+#' @param A.mu matrix of the model (default=empty)
 #' @return A list with slot \code{logMu},
 #' @seealso \code{\link{nb.loglik.regression}}
 nb.regression.parseModel <- function(alpha, A.mu) {
@@ -123,7 +122,7 @@ nb.regression.parseModel <- function(alpha, A.mu) {
 #' @param alpha the vectors of parameters a.mu concatenated
 #' @param Y the vector of counts
 #' @param A.mu matrix of the model (see Details, default=empty)
-#' @param C.theta matrix of the model (log(\theta), default=zero)
+#' @param C.theta matrix of the model (\eqn{log(\theta)}, default=zero)
 #' @details The regression model is parametrized as follows: \deqn{log(\mu) =
 #'   A_\mu * a_\mu}  \deqn{log(\theta) = C_\theta}
 #'   where \eqn{\mu, \theta} are
@@ -209,7 +208,6 @@ nb.loglik.dispersion.gradient <- function(zeta, Y, mu) {
 }
 
 
-#' @export
 nb.optim_funnoT <- function(beta_mu, Y, X_mu, zeta, n) {
   optim( fn=nb.loglik.regression,
          gr=nb.loglik.regression.gradient,

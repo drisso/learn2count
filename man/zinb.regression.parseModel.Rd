@@ -9,9 +9,9 @@ zinb.regression.parseModel(alpha, A.mu, A.pi)
 \arguments{
 \item{alpha}{the vectors of parameters c(a.mu, a.pi) concatenated}
 
-\item{A.mu}{matrix of the model (1,X_K\backslash\{s\},T, default=empty)}
+\item{A.mu}{matrix of the model (default=empty)}
 
-\item{A.pi}{matrix of the model (1,X_K\backslash\{s\},T, default=empty)}
+\item{A.pi}{matrix of the model (default=empty)}
 }
 \value{
 A list with slots \code{logMu}, \code{logitPi}, \code{dim.alpha} (a
@@ -22,10 +22,5 @@ A list with slots \code{logMu}, \code{logitPi}, \code{dim.alpha} (a
 \description{
 Given the parameters of a ZINB regression model, this function parses the
 model and computes the vector of log(mu), logit(pi), and the dimensions of
-the different components of the vector of parameters. See
-\code{\link{zinb.loglik.regression}} for details of the ZINB regression model
-and its parameters.
-}
-\seealso{
-\code{\link{zinb.loglik.regression}}
+the different components of the vector of parameters.
 }

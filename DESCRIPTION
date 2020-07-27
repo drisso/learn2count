@@ -16,7 +16,8 @@ Description:
 License: Artistic-2.0
 Imports: 
   MASS,
-  foreach
+  foreach,
+  countreg
 Suggests: knitr
 Encoding: UTF-8
 VignetteBuilder: knitr

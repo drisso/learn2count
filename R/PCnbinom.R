@@ -3,11 +3,12 @@
 #' @param alpha the sisnificant level tests
 #' @param X the matrix of counts.
 #' @param maxcard the uper bound for cardinalities of conditional sets K
-#' extend=TRUE if we consider the union of tests
-
+#' @param extend TRUE if we consider the union of tests
 #' @return the adj matrix.
 #' @export
 #' @importFrom MASS glm.nb negative.binomial
+#' @importFrom utils combn
+#' @importFrom stats as.formula glm
 nb.wald <- function(X,maxcard,alpha, extend){
   p <- ncol(X)
   n <- nrow(X)

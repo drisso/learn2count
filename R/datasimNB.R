@@ -5,7 +5,8 @@
 #' @param p number of variables (nodes)
 #' @param mu mean of negative binomial
 #' @param mu.nois mean of noise
-#' @param theta dispersion parameter of negative binomial, where $var=\mu+\mu^2/theta$
+#' @param theta dispersion parameter of negative binomial, where \eqn{var=\mu+\mu^2/theta}
+#' @param B adjacency matrix
 #' @export
 nbinom.Simdata <- function(n, p,B,mu,mu.nois,theta){
   set.seed(123)

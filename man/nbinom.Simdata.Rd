@@ -11,11 +11,13 @@ nbinom.Simdata(n, p, B, mu, mu.nois, theta)
 
 \item{p}{number of variables (nodes)}
 
+\item{B}{adjacency matrix}
+
 \item{mu}{mean of negative binomial}
 
 \item{mu.nois}{mean of noise}
 
-\item{theta}{dispersion parameter of negative binomial, where $var=\mu+\mu^2/theta$}
+\item{theta}{dispersion parameter of negative binomial, where \eqn{var=\mu+\mu^2/theta}}
 }
 \description{
 Generatedata matrix (nxp) under NB assumption based on Karlis (or LPGM. 2013) with adjancency matrix B.
