@@ -49,7 +49,6 @@ nb.OptimizeDispersion <- function( mu,Y,n) {
 #'   convention that the variance of the NB variable with mean mu and dispersion
 #'   theta is mu + mu^2/theta.
 #'
-#' @export
 #' @return the log-likelihood of the model.
 #' @importFrom stats dnbinom optim optimize rbinom rnbinom runif var
 nb.loglik <- function(Y, mu, theta) {
@@ -76,8 +75,6 @@ nb.loglik <- function(Y, mu, theta) {
 #'   negative binomial model
 #' @param Y a vector of counts
 #' @param mu a vector of mean parameters of the negative binomial
-
-#' @export
 #' @seealso \code{\link{zinb.loglik}}.
 #' @return the log-likelihood of the model.
 nb.loglik.dispersion <- function(zeta, Y, mu){

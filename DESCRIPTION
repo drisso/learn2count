@@ -15,7 +15,6 @@ Description:
    single-cell RNA-seq data.
 License: Artistic-2.0
 Imports: 
-  zinbwave,
   MASS,
   foreach
 Suggests: knitr

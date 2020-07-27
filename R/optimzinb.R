@@ -13,7 +13,6 @@
 #'   convention that the variance of the NB variable with mean mu and dispersion
 #'   theta is mu + mu^2/theta.
 #' @param logitPi the vector of logit of the probabilities of the zero component
-#' @importFrom zinbwave zinb.loglik.dispersion zinb.loglik zinb.loglik.dispersion.gradient
 #' @examples
 #' n <- 10
 #' mu <- seq(10,50,length.out=n)
@@ -121,7 +120,6 @@ zinb.regression.parseModel <- function(alpha, A.mu,A.pi) {
 
 ###zinb1: there are structures both in $mu$ and in $pi$
 #' @export
-#' @importFrom zinbwave zinb.loglik.regression zinb.loglik.regression.gradient
 optim_funnoT <- function(beta_mu, gamma_pi, Y, X_mu, zeta, n) {
     optim( fn=zinb.loglik.regression,
            gr=zinb.loglik.regression.gradient,
@@ -145,3 +143,148 @@ optim_fun0noT <- function(beta_mu, gamma_pi, Y, X_mu, zeta, n) {
            method="BFGS")$par
 }
 
+zinb.loglik <- function(Y, mu, theta, logitPi) {
+
+  # log-probabilities of counts under the NB model
+  logPnb <- suppressWarnings(dnbinom(Y, size = theta, mu = mu, log = TRUE))
+
+  # contribution of zero inflation
+  lognorm <- - copula::log1pexp(logitPi)
+
+  # log-likelihood
+  sum(logPnb[Y>0]) + sum(logPnb[Y==0] + copula::log1pexp(logitPi[Y==0] -
+                                                           logPnb[Y==0])) + sum(lognorm)
+}
+
+zinb.loglik.dispersion <- function(zeta, Y, mu, logitPi) {
+  zinb.loglik(Y, mu, exp(zeta), logitPi)
+}
+
+zinb.loglik.dispersion.gradient <- function(zeta, Y, mu, logitPi) {
+  theta <- exp(zeta)
+
+  # Check zeros in the count vector
+  Y0 <- Y <= 0
+  Y1 <- Y > 0
+  has0 <- !is.na(match(TRUE,Y0))
+  has1 <- !is.na(match(TRUE,Y1))
+
+  grad <- 0
+  if (has1) {
+    grad <- grad + sum( theta * (digamma(Y[Y1] + theta) - digamma(theta) +
+                                   zeta - log(mu[Y1] + theta) + 1 -
+                                   (Y[Y1] + theta)/(mu[Y1] + theta) ) )
+  }
+
+  if (has0) {
+    logPnb <- suppressWarnings(dnbinom(0, size = theta, mu = mu[Y0],
+                                       log = TRUE))
+    grad <- grad + sum( theta * (zeta - log(mu[Y0] + theta) + 1 -
+                                   theta/(mu[Y0] + theta)) / (1+exp(logitPi[Y0] - logPnb)))
+    # *exp(- copula::log1pexp( -logPnb + logitPi[Y0])))
+
+  }
+
+  grad
+}
+
+zinb.loglik.regression <- function(alpha, Y,
+                                   A.mu = matrix(nrow=length(Y), ncol=0),
+                                   A.pi = matrix(nrow=length(Y), ncol=0),
+                                   C.theta = matrix(0, nrow=length(Y), ncol=1)) {
+
+  # Parse the model
+  r <- zinb.regression.parseModel(alpha=alpha,
+                                  A.mu = A.mu,
+                                  A.pi = A.pi)
+
+  # Call the log likelihood function
+  z <- zinb.loglik(Y, exp(r$logMu), exp(C.theta), r$logitPi)
+  #return z
+  z
+}
+
+zinb.loglik.regression.gradient <- function(alpha, Y,
+                                            A.mu = matrix(nrow=length(Y), ncol=0),
+                                            A.pi = matrix(nrow=length(Y), ncol=0),
+                                            C.theta = matrix(0, nrow=length(Y), ncol=1)) {
+
+  # Parse the model
+  r <- zinb.regression.parseModel(alpha=alpha,
+                                  A.mu = A.mu,
+                                  A.pi = A.pi)
+
+  theta <- exp(C.theta)
+  mu <- exp(r$logMu)
+  n <- length(Y)
+
+  # Check zeros in the count matrix
+  Y0 <- Y <= 0
+  Y1 <- Y > 0
+  has0 <- !is.na(match(TRUE,Y0))
+  has1 <- !is.na(match(TRUE,Y1))
+
+  # Check what we need to compute,
+  # depending on the variables over which we optimize
+  need.wres.mu <- r$dim.alpha[1] >0
+  need.wres.pi <- r$dim.alpha[2] >0
+
+  # Compute some useful quantities
+  muz <- 1/(1+exp(-r$logitPi))
+  clogdens0 <- dnbinom(0, size = theta[Y0], mu = mu[Y0], log = TRUE)
+
+  lognorm <- -r$logitPi - copula::log1pexp(-r$logitPi)
+
+  dens0 <- muz[Y0] + exp(lognorm[Y0] + clogdens0)
+
+  # Compute the partial derivatives we need
+  ## w.r.t. mu
+  if (need.wres.mu) {
+    wres_mu <- numeric(length = n)
+    if (has1) {
+      wres_mu[Y1] <- Y[Y1] - mu[Y1] *
+        (Y[Y1] + theta[Y1])/(mu[Y1] + theta[Y1])
+    }
+    if (has0) {
+
+      wres_mu[Y0] <- -exp(-log(dens0) + lognorm[Y0] + clogdens0 +
+                            C.theta[Y0] - log(mu[Y0] + theta[Y0]) +
+                            log(mu[Y0]))
+    }
+  }
+
+  ## w.r.t. pi
+  if (need.wres.pi) {
+    wres_pi <- numeric(length = n)
+    if (has1) {
+
+      wres_pi[Y1] <-  muz[Y1]
+
+    }
+    if (has0) {
+
+      wres_pi[Y0] <- -(1 - exp(clogdens0)) * muz[Y0] * (1-muz[Y0]) / dens0
+    }
+  }
+
+  # Make gradient
+  grad <- numeric(0)
+
+  ## w.r.t. a_mu
+  if (r$dim.alpha[1] >0) {
+    istart <- r$start.alpha[1]
+    iend <- r$start.alpha[1]+r$dim.alpha[1]-1
+    grad <- c(grad , colSums(wres_mu * A.mu))
+  }
+
+  ## w.r.t. a_pi
+  if (r$dim.alpha[2] >0) {
+    istart <- r$start.alpha[2]
+    iend <- r$start.alpha[2]+r$dim.alpha[2]-1
+    grad <- c(grad , colSums(wres_pi * A.pi) )
+  }
+
+
+
+  grad
+}
