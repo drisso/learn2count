@@ -1,1 +1,1 @@
-R code for PC-zinb algorithm
+This package implements algorithms for structure learning of graphical models for count data.
