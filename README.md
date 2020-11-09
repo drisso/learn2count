@@ -1,5 +1,15 @@
-This package implements algorithms for structure learning of graphical models for count data. For estimating a structure from give data, use function PCPoisson.R for Poisson node conditional models; function PCnb-optim.R (or PCnbinom.R using glm approach) for Negative Binomial node conditional models; and function PCzinb1noT.R and PCnb0noT.R for zero-inflated negative binomial node conditional models.
+This package implements algorithms for structure learning of graphical models for count data.
 
-For simulating a data set, see functions datasimPois.R, datasinNB.R, datasimzinb.R for Poisson node conditional models, Negative Binomial node conditional models, and zero-inflated negative binomial node conditional models respectively.
+For estimating a structure from given data, use function:
+- `pois.wald` for Poisson node conditional models; 
+- `nbscale.noT` (or `nb.wald` using glm approach) for Negative Binomial node conditional models;
+-  `zinb1.noT` and `zinb0.noT` for zero-inflated negative binomial node conditional models.
 
-optimnb.R and optimzinb.R include all neccessary functions to estimate parameters in each model.
+For simulating a data set, see functions `pois.simdata`, `nbinom.Simdata`, and `zinb.simdata` for Poisson node conditional models, Negative Binomial node conditional models, and zero-inflated negative binomial node conditional models, respectively.
+
+To install the package, you can run the following in R:
+
+```{r}
+library(remotes)
+install_github("drisso/zinbgraph")
+```
