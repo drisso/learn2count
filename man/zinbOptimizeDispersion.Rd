@@ -28,5 +28,5 @@ mu <- seq(10,50,length.out=n)
 logitPi <- rnorm(1)
 zeta <- rnorm(1)
 Y <- rnbinom(n=n, size=exp(zeta), mu=mu)
-zinbgraph:::zinbOptimizeDispersion ( mu, logitPi,Y,n)
+learn2count:::zinbOptimizeDispersion ( mu, logitPi,Y,n)
 }
