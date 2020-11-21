@@ -11,5 +11,5 @@ To install the package, you can run the following in R:
 
 ```{r}
 library(remotes)
-install_github("drisso/zinbgraph")
+install_github("drisso/learn2count")
 ```
