@@ -1,7 +1,7 @@
 Package: learn2count
 Type: Package
 Title: Structure Learning for Count Data
-Version: 0.1.2
+Version: 0.1.3
 Authors@R: 
     c(person("Davide","Risso", role=c("aut","cre", "cph"), 
           email="risso.davide@gmail.com"),
@@ -18,6 +18,8 @@ Imports:
   MASS,
   foreach,
   countreg
+Remotes:
+  rforge/countreg/pkg
 Suggests: knitr
 Encoding: UTF-8
 VignetteBuilder: knitr
