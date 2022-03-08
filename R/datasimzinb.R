@@ -8,7 +8,6 @@
 #' @param pi parameter relate to zero part and negative part
 #' @param B adjacency matrix
 #' @param mu.nois mean of noise
-#' @export
 #' @importFrom countreg rzinbinom
 zinb.simdata <- function(n,p,B, mu,mu.nois,theta,pi){
    set.seed(123)

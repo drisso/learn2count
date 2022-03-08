@@ -6,7 +6,6 @@
 #' @param lambda mean of Poisson
 #' @param lambda.c mean of noise
 #' @param B adjacency matrix
-#' @export
 #' @importFrom stats rpois
 pois.simdata <- function(n, p,B,lambda,lambda.c){
 
