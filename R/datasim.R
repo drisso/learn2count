@@ -81,6 +81,6 @@ simdata <- function(n, p, B, family = c("Poisson", "NB", "ZINB"), mu, mu_noise,
 generate_data <- function(mu, theta=NA, pi=NA, family = family) {
     switch(family,
            Poisson = rpois(n, lambda=mu),
-           NB = rnbinom(n,mu=mu,theta=theta),
+           NB = rnbinom(n,mu=mu,size=theta),
            ZINB = rzinbinom(n, mu=mu, theta=theta, pi=pi))
 }
