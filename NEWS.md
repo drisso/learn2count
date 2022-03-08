@@ -4,3 +4,5 @@
 - New function `simdata` now substitutes the three original simulation functions
   (`nbinom.Simdata`, `pois.simdata`, `zinb.simdata`)
 - Function `simdata` does not set seed internally unlike its predecessor
+- The older simulation functions have been retained (for now) to test the new function
+- Added unit tests

@@ -68,17 +68,17 @@ simdata <- function(n, p, B, family = c("Poisson", "NB", "ZINB"), mu, mu_noise,
     Y_mu <- c(rep(mu, nrow(sigma)), nonzero_sigma)
 
     ##data matrix
-    Y <-  matrix(unlist(do.call(rbind, parallel::mclapply(Y_mu, generate_data, theta=theta, pi=pi, family=family))),length(Y_mu),n)
+    Y <-  matrix(unlist(do.call(rbind, lapply(Y_mu, generate_data, theta=theta, pi=pi, family=family, n=n))),length(Y_mu),n)
     X <- A%*%Y
     # add noise to all the nodes.
     theta_noise <- ifelse(is.na(theta), NA, 1)
-    X <- X + matrix(unlist(do.call(rbind, parallel::mclapply(rep(mu_noise,p), generate_data, theta=theta_noise, pi=pi, family=family))),p,n)
+    X <- X + matrix(unlist(do.call(rbind, lapply(rep(mu_noise,p), generate_data, theta=theta_noise, pi=pi, family=family, n=n))),p,n)
 
     return(t(X))
 
 }
 
-generate_data <- function(mu, theta=NA, pi=NA, family = family) {
+generate_data <- function(mu, theta=NA, pi=NA, family, n) {
     switch(family,
            Poisson = rpois(n, lambda=mu),
            NB = rnbinom(n,mu=mu,size=theta),

@@ -15,21 +15,23 @@ Description:
    single-cell RNA-seq data.
 License: Artistic-2.0
 Imports: 
-  MASS,
-  foreach,
-  countreg
+    MASS,
+    foreach,
+    countreg
+Suggests: 
+    knitr,
+    testthat
 Remotes:
-  rforge/countreg/pkg
-Suggests: knitr
+    rforge/countreg/pkg
 Encoding: UTF-8
 VignetteBuilder: knitr
 LazyData: true
 biocViews:
-  GeneExpression,
-  RNASeq,
-  Software,
-  Transcriptomics,
-  Sequencing,
-  SingleCell
+    GeneExpression,
+    RNASeq,
+    Software,
+    Transcriptomics,
+    Sequencing,
+    SingleCell
 BugReports: https://github.com/drisso/learn2count/issues
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
