@@ -17,7 +17,8 @@ License: Artistic-2.0
 Imports: 
     MASS,
     foreach,
-    countreg
+    countreg,
+    SummarizedExperiment
 Suggests: 
     knitr,
     testthat
