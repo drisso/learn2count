@@ -24,7 +24,8 @@ Imports:
 Suggests: 
     knitr,
     testthat,
-    BiocStyle
+    BiocStyle,
+    gRbase
 Remotes:
     rforge/countreg/pkg
 Encoding: UTF-8
