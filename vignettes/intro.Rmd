@@ -1,0 +1,356 @@
+---
+title: "Introduction to the `learn2count` package"
+author: "Kim Hue Nguyen and Davide Risso"
+date: "Last modified: November 7, 2020; Compiled: `r format(Sys.time(), '%B %d, %Y')`"
+bibliography: refs.bib
+output:
+  BiocStyle::html_document:
+    toc: true
+vignette: >
+  %\VignetteEncoding{UTF-8}
+---
+
+# Installation
+
+The recommended way to install the `learn2count` package is
+
+```{r, eval=FALSE}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("learn2count")
+```
+
+
+# Introduction
+
+```{r options, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(warning=FALSE, error=FALSE, message=FALSE)
+set.seed(123)
+```
+
+This vignette provides an introductory example on how to work with the `learn2count` package, which implements the structure learning methods proposed in @nguyen2020structure. First, let us load the packages and set serial computations.
+
+```{r load_packs}
+library(foreach)
+library(learn2count)
+
+# Register sequential computations 
+# see the `doParallel` package for parallel computations
+registerDoSEQ()
+```
+
+# The ZINB model
+
+ZINB is a general and flexible model for Structure learning of high-dimensional zero-inflated count data, such as those recorded in single-cell RNA-seq assays. Given \(n\) samples (typically, \(n\) single cells) and \(p\) features (typically, \(p\) genes) that can be counted for each sample, we denote with \(X_{is}\) the count of feature \(s\) (\(s=1,\ldots,p\)) for sample \(i\) (\(i=1,\ldots,n\)). To account for various technical and
+biological effects, typical of single-cell sequencing
+technologies, we model \(X_{is}\) conditional to all possible subsets  of variables \(\mathbf{x}^{(i)}_{K}, \, K\subseteq V\) is a zero-inflated negative binomial (zinb) distribution with parameters \(\mu_{is|K}\), \(\theta_{s|K}\), and
+\(\pi_{is|K}\), and consider the following regression models for the parameters:
+
+\begin{equation}\label{localcondzinb}
+    f_{zinb}(x_{is};\mu_{is|K},\theta_{s},\pi_{is|K}|\mathbf{x}^{(i)}_{K\setminus\{s\}})= \pi_{is|K}\delta_0(x_{is})+(1-\pi_{is|K})f_{nb}(x_{is},\mu_{is|K},\theta_{s}|\mathbf{x}^{(i)}_{K\setminus\{s\}}),
+\end{equation}
+where \(\delta_0(.)\) is the Dirac function,   \(\pi_{is|K}\in [0,1]\) is the probability that a 0 is sampled from a distribution degenerate at zero and \(f_{nb}(.,\mu,\theta)\) denotes the probability mass function of the negative binomial (NB) distribution with mean $\mu$ and inverse dispersion parameter \(\theta.\) We assume that
+\begin{align}
+	\ln(\mu_{is|K})&= \nu^{\mu}_{s|K}+\sum_{t\in K\setminus\{s\}} \beta^{\mu}_{st|K}x_{it}\label{link-mu},\\
+\text{logit}(1-\pi_{is|K})&=\nu^{\pi}_{s|K}+\sum_{t\in K\setminus\{s\}} \beta^\pi_{st|K}x_{it}.\label{link-pi}
+\end{align}
+
+When both  $\mu_{is|K}$ and $\pi_{is|K}$,  are not constant, a missing edge between node $s$ and node $t$ corresponds to the condition $\beta^{\mu}_{st|K}=\beta^{\mu}_{ts|K}=\beta^{\pi}_{st|K}=\beta^{\pi}_{ts|K}= 0, \,\, \forall K \subseteq V\setminus \{s\}.$ On the other hand, one edge between node $s$ and node $t$ implies that at least one of four parameters $\beta^{\mu}_{st|K}, \beta^{\mu}_{ts|K}, \beta^{\pi}_{st|K}, \beta^{\pi}_{ts|K}$ is different from 0.
+
+This specification defines a family of models that includes the most common models employed  with count data and embraces a variety of situations. It is quite evident that, when 
+$\pi_{is|K} = 0, \,\, \forall \ K \subseteq V\setminus \{s\},$ the model reduces to a NB distribution, which, in turn reduces to a Poisson distribution when the inverse dispersion parameter  $\theta_s$ tends to infinity. When $\pi_{is|K} > 0,$ zero-inflation comes into play and zero-inflated Poisson and NB models can be considered. In this case, when $\beta^{\pi}_{st|K} = 0,\,\, \forall \,\,t\in K\setminus\{s\},$  the neighborhood of a node $s$ is defined to be the set of effective predictors of $\mu_{is|K}$ and consists of all nodes $t$ for which $\beta^{\mu}_{st|K} \ne 0.$ On the other side, when $\beta^{\mu}_{st|K} = 0,\,\, \forall\,\, t\in K\setminus\{s\},$  the neighborhood of a node $s$ is defined to be the set of effective predictors of $\pi_{is|K}$ and consists of all nodes $t$ for which $\beta^{\pi}_{st|K} \ne 0.$ In other words, the family includes models in which the structure of the graph is attributable only to one of the two parameter components, $\pi_{is|K}$ or $\mu_{is|K}.$ 
+
+# Example dataset
+
+To illustrate the methodology, we analyzed a set of 17,743 cells, assayed with 10X Genomics (v2 chemistry) after injury of the olfactory epithelium (OE), to characterize Horizontal Basal Cells (HBC) and their descendants during regeneration [@brann2020non]. Starting from an initial set of 25,469 cells, low-quality samples as well as potential doublets were removed as described in @brann2020non. After clustering with the Leiden algorithm [@Traag2019], known marker genes were used to identify cell types. We discarded the cell types outside of the neuronal lineage (macrophages, sustentacular cells, and microvillar cells), obtaining our final dataset consisting of 7782 HBCs, 5418 activated HBCs (HBC*), 755 Globose Basal Cells (GBC), 2859 immature olfactory neurons  (iOSN), and 929 mature olfactory neurons (mOSN). For more details on the data preprocessing, see @brann2020non.
+
+Our analysis focuses on the total set of 1543 known transcription factors (TF) in mouse, which are thought to regulate the observed differentiation processes. We furthermore focus on the differentiation path starting at the activated HBC stage (i.e., activated stem cells upon injury) up to mature neurons, therefore investigating the entire neuronal lineage in the trajectory of this dataset. We expect four different cell types along this path, being respectively HBC*, GBC, iOSN and mOSN, and we estimate the structure of the graph for each of these cell types.
+
+```{r pollen}
+setwd("/Users/KimHue/study/zinb/R/zinb_coderealdata")
+###### load count matrix
+data <- readRDS("counts.rds")
+
+#### load groups
+groups <- readRDS("groups.rds")
+name.group <- as.character(unique(groups))
+
+### load TF genes
+load(file="ALL_TF.rda")
+TF.gene <- ALL_TF
+```
+
+## Gene filtering
+
+First, we filter cells following the  four cell types along the neuronal lineage. For example, we filter cells for activated HBCs (HBC*) group. Then, we only focus on the total set of 1543 known TFs.
+```{r filter}
+##### filter HBC* cells!
+ind.group <- which(groups=="HBC*")
+Y <- t(data[,ind.group])
+
+##### filter TF genes!
+ind.TF <- which(colnames(Y) %in% TF.gene)
+Y.TF <- Y[,ind.TF]
+dim(Y.TF)
+```
+
+Second, it is worth to note that the genes have zero  values across almost all the samples are not meaningful genes to study via network models because they are constant across the samples. Therefore, we suggest to filter out these genes.  Here, we removed those genes that have mean smaller than 0.005.
+
+```{r filter low genes}
+#### filter some genes with low mean
+meanY.TF  <- apply(Y.TF,2,mean)
+skip.TF <- which(meanY.TF>= 0.005)
+X.genes <- Y.TF [,skip.TF]
+```
+
+We next identify the 100 most variable genes, and 200 cells with highest means which will be the input of our zinb procedure. Although we apply zinb to only these genes primarily for computational reasons, it is generally a good idea to focus on a subset of highly-variable genes, in order to remove transcriptional noise and focus on the more biologically meaningful signals. However, we processed the total set of 1543 known TFs for real analyses.
+```{r variance}
+### filter 100 most variance genes
+var.genes <- apply(X.genes,2,var)
+or.var <- order(var.genes,decreasing=TRUE)
+X.genes <- X.genes[,or.var[1:100]]
+### filter 200 cells with highest means
+mean.cells <- apply(X.genes,1,mean)
+or.mean <- order(mean.cells,decreasing=TRUE)
+X.genes <- X.genes[or.mean[1:200],]
+```
+
+## Gene preprocessing
+
+Once the data is ready, we apply preprocessing steps as in @JMLR:v22:18-401.
+```{r Preprocessing}
+source("/Users/KimHue/study/zinb/R/zinb_coderealdata/KS_test.R")
+#### Preprocessing data
+####### Step 1: normalizing with 95%quantile matching
+quanNorm <- .95
+p <- ncol(X.genes)
+dis <- apply(X.genes,1,quantile,quanNorm)
+toskip <- which(dis==0)
+if(length(toskip)>0){
+    qnum <- mean(dis[-toskip])
+    todoX <- X.genes[-toskip,]
+    fX <- todoX/(dis[-toskip]%o%rep(1,p)/qnum)
+}else{
+    qnum <- mean(dis)
+    todoX <- X.genes
+    fX <- todoX/(dis%o%rep(1,p)/qnum)
+}
+  
+######## Step 2: transform X to X^\alpha with alpha obtained from KS test
+####finding optimal alpha by KS test
+alpha.ks <- seq(0.01,.5,length=100)
+KSstat_est <- foreach(i = 1:dim(fX)[2], .combine = "cbind",.packages=c("iZID")) %dopar%{
+ks.stat <- rep(NA,length(alpha.ks))
+for (j in 1:length(alpha.ks)) {
+      x <- fX[,i]^alpha.ks[j]
+      p.nb <- 1-mean(x)/var(x)
+      r <- mean(x)*(1-p.nb)/p.nb
+      ks.stat[j] <- KS.statistic(x,r,p.nb)
+  }
+  ks.stat
+}
+sum.ks <- apply(KSstat_est,1, sum)
+ind.alpha <- which(sum.ks==min(sum.ks))
+  
+#### transform X to X^\alpha with alpha obtained from KS test
+datatest <- floor(fX^alpha.ks[ind.alpha])
+gene.skip <- which(apply(datatest,2,mean)==0)
+if (length(gene.skip)>0) datatest <- datatest [,-gene.skip]
+
+```
+
+## zinb
+Now, we reconstruct the underlying graph by applying the zinb algorithm via `zinb` function. This function takes as input a matrix of data set $n\times p$ object and returns a adjacency matrix.
+
+```{r zinb}
+maxcard <- 2
+n <- nrow(datatest)
+alpha <-  2*pnorm(n^.2,lower.tail=F)
+#####zinb1
+adj.zinb1 <- learn2count::zinb1.noT(datatest,maxcard,alpha, extend=TRUE)
+```
+
+`zinb1.noT` is the function that apply zinb models in which  the structure of the graph is attributable to both of the two parameter components $\mu$ and $\pi$. If we want to infered the structure from only $\mu$, then we apply `zinb0.noT` function.
+The parameter `maxcard` controls the maximum number of varibales that is considered in the conditional sets. In this case, `maxcard` is set to equal to 2. The parameter `alpha` is the significant level tests, and parameter `extend= TRUE` if we consider the union of tests.
+
+We also consider two variants of zinb models
+
+  -   PC-nb:  Negative binomial model, i.e., the special case of zinb models where $\pi_{s|K}=0$;
+  -   PC-pois:  Poisson model [@JMLR:v22:18-401].
+
+```{r nbPois}
+#####NB
+adj.NB <- learn2count::nb.wald (datatest,maxcard,alpha, extend=TRUE) 
+#####Poisson
+adj.Pois <- learn2count::pois.wald (datatest,maxcard,alpha, extend=TRUE)
+```
+
+## Results on real data.
+Here, we infer the result graph obtained from zinb1 algorithm with `alpha`(significance levels tests)  $\alpha=2\times\text{pnorm}(n^{0.15},\text{lower.tail=F})$, on the total set of 1543 TFs, and 1000 HBC* cells.
+
+```{r}
+library(igraph)
+library(rgl)
+library(rafalib)
+library(slingshot)
+library(msigdbr)
+library(fgsea)
+library(knitr)
+library(leiden)
+cols <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999")
+```
+### First, we load adjacency matrix of the result graph.
+
+```{r}
+## activated HBC
+setwd("/Users/KimHue/study/zinb/R/zinb_coderealdata/result_realdata")
+load("list_TF.RData")
+load("3-dataTFtranscelsalpha059515result.RData")
+adjHBCAct <- adj.zinb1
+dimnames(adjHBCAct) <- list(colnames(datatest), colnames(datatest))
+adjHBCAct <- adjHBCAct[!rowSums(adjHBCAct) == 0,]
+adjHBCAct <- adjHBCAct[,!colSums(adjHBCAct) == 0]
+rm(adj.zinb1, datatest)
+```
+
+
+### Extract 2-core of the network
+To interpret the graph structure, we focus on the 2-core of each network, i.e., we retain TFs that are associated with at least two other TFs, a preprocessing step that helps in understanding the core structure [@wang2016].
+
+```{r}
+extractCore <- function(A, degree = 3){
+  converg <- FALSE
+  old.nrow <- nrow(A)
+  while(!converg){
+    d <- colSums(A)
+    to.keep <- which(d>=degree)
+    if(old.nrow==length(to.keep)){
+      converg <- TRUE
+    }
+    old.nrow <- length(to.keep)
+    A <- A[to.keep,to.keep]
+  }
+  return(A)
+}
+
+adjHBCAct2 <- extractCore(adjHBCAct, degree = 2)
+
+
+#mypar(mfrow=c(2,2))
+gHBCAct2 <- graph_from_adjacency_matrix(adjHBCAct2,mode="undirected")
+plot(gHBCAct2,vertex.size=3,vertex.label=NA,edge.width=0.6, main="HBC*")
+
+
+
+```
+
+### Community detection
+
+We identify communities in each graph using the Leiden algorithm [@Traag2019] and, in order to validate the associations discovered by PC-zinb, we interpret each of the communities by computing overlap with known functional gene sets in the MSigDB database [@Subramanian2005, @Liberzon2015]. 
+
+```{r}
+library(RColorBrewer)
+library(HCD)
+
+gradualPlot <- function(cl, A){
+  ncl <- length(unique(cl))
+  for(cc in 1:ncl){
+    id <- which(cl %in% (1:cc))
+    curG <- graph_from_adjacency_matrix(A[id,id],mode="undirected")
+      V(curG)$color <- cols[cl[names(V(curG))]]
+      lo <- layout_with_fr(curG)
+     plot(curG,
+         vertex.size=3,
+       vertex.label=NA,
+       edge.width=0.6,
+       vertex.frame.color=cols[cl[id]],
+       color=V(curG)$color,
+       layout = lo
+       )
+  }
+}
+
+## C5 category is according to gene ontology grouping: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4707969/pdf/nihms-743907.pdf
+geneSets <- msigdbr(species = "Mus musculus", category = "C5", subcategory = "BP")
+
+gsea <- function(genes, background, geneSets, n=10, minSize=5, name=NULL){
+  ### filter background to only include genes that we assessed.
+  geneSets <- geneSets[geneSets$gene_symbol %in% background,]
+  m_list <- geneSets %>% split(x = .$gene_symbol, f = .$gs_name)
+  # gene set must have at least minSize genes in background.
+  m_list <- m_list[unlist(lapply(m_list, length)) >= minSize]
+  
+  overlapPval <- unlist(lapply(m_list, function(gs){
+    # genes in community and gene set
+    inBoth <- sum(genes %in% gs)
+    # genes in community and not in gene set
+    inComOnly <- length(genes) - inBoth
+    # genes in background and gene set
+    inGsBack <- sum(background %in% gs)
+    # genes in background and not in gene set
+    outGsBack <- length(background) - inGsBack
+    m <- matrix(c(inBoth, inComOnly,
+           inGsBack, outGsBack),
+           nrow =2, ncol=2, byrow=TRUE,
+           dimnames = list(c("in community", "out community"),
+                           c("in gene set", "out gene set")))
+    fis <- fisher.test(m, alternative = "greater")
+    pval <- fis$p.value
+    return(pval)
+  }))
+  padj <- p.adjust(overlapPval, "fdr")
+  oo <- order(overlapPval, decreasing=FALSE)
+  res <- data.frame(geneSet = names(m_list)[oo[1:n]],
+                    pval = overlapPval[oo[1:n]],
+                    padj = padj[oo[1:n]],
+                    row.names = NULL)
+  kable(res, caption=name, label=name)
+}
+
+
+```
+
+#### HBC*
+
+```{r}
+#set.seed(2)
+clHBCAct <- leiden(adjHBCAct2, resolution_parameter=.4, seed = 7)
+table(clHBCAct)
+
+gHBCAct <- graph_from_adjacency_matrix(adjHBCAct2,mode="undirected")
+cols <- brewer.pal(8, "Dark2")
+V(gHBCAct)$color <- cols[clHBCAct[names(V(gHBCAct))]]
+plot(gHBCAct,
+     vertex.size=3,
+     vertex.label=NA,
+     #vertex.frame.color=V(gHBC)$color,
+     color=V(gHBCAct)$color,
+     edge.width=0.6)
+comHBCAct <- make_clusters(gHBCAct, membership = clHBCAct)
+plot(comHBCAct, gHBCAct,vertex.size=3, vertex.label=NA, edge.width=0.6)
+
+## gradual plot
+gradualPlot(clHBCAct, adjHBCAct2)
+
+
+## gene set enrichment on HCD results
+ncl <- length(unique(comHBCAct$membership))
+kab <- list()
+kabNames <- c("Cell cycle, DNA damage",
+                "Epigenetics",
+                "(Epithelial) cell differentiation",
+                "Cell cycle, DNA replication",
+              "DNA replication")
+for(kk in 1:ncl){
+  genes <- rownames(adjHBCAct2)[which(comHBCAct$membership == kk)]
+  kab[[kk]] <- gsea(genes = genes,
+       background = TF.list,
+       geneSets = geneSets,
+       name = kabNames[kk])
+}
+kab
+```
+
+
+# References
+

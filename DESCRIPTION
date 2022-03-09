@@ -23,7 +23,8 @@ Imports:
     SummarizedExperiment
 Suggests: 
     knitr,
-    testthat
+    testthat,
+    BiocStyle
 Remotes:
     rforge/countreg/pkg
 Encoding: UTF-8
