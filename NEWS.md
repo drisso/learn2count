@@ -6,3 +6,6 @@
 - Function `simdata` does not set seed internally unlike its predecessor
 - The older simulation functions have been retained (for now) to test the new function
 - Added unit tests
+- Improved documentation
+- Addded S4 methods for a wrapper function, `PCzinb`, which should be the main function used by users
+- Added SummarizedExperiment support
