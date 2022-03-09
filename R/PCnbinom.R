@@ -1,10 +1,14 @@
-#' This function estimates adjacency matrix of a NB models given a matrix of counts, using glm.
+#' Structure learning with negative binomial model using glm
 #'
-#' @param alpha the sisnificant level tests
-#' @param X the matrix of counts.
-#' @param maxcard the uper bound for cardinalities of conditional sets K
-#' @param extend TRUE if we consider the union of tests
-#' @return the adj matrix.
+#' This function estimates the adjacency matrix of a NB model given a matrix of
+#' counts, using the glm.nb function.
+#'
+#' @param X the matrix of counts (n times p).
+#' @param alpha the significant level of the tests
+#' @param maxcard the uper bound of the cardinality of the conditional sets K
+#' @param extend if TRUE it considers the union of the tests, otherwise it
+#'   considers the intersection.
+#' @return the estimated adjacency matrix of the graph.
 #' @export
 #' @importFrom MASS glm.nb negative.binomial
 #' @importFrom utils combn

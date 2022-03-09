@@ -2,22 +2,24 @@
 % Please edit documentation in R/PCPoisson.R
 \name{pois.wald}
 \alias{pois.wald}
-\title{This function estimates adjacency matrix of a Poisson models given a matrix of counts, using glm.}
+\title{Structure learning with Poisson models}
 \usage{
 pois.wald(X, maxcard, alpha, extend)
 }
 \arguments{
-\item{X}{the matrix of counts.}
+\item{X}{the matrix of counts (n times p).}
 
-\item{maxcard}{the uper bound for cardinalities of conditional sets K}
+\item{maxcard}{the uper bound of the cardinality of the conditional sets K}
 
-\item{alpha}{the sisnificant level tests}
+\item{alpha}{the significant level of the tests}
 
-\item{extend}{TRUE if we consider the union of tests}
+\item{extend}{if TRUE it considers the union of the tests, otherwise it
+considers the intersection.}
 }
 \value{
-the adj matrix.
+the estimated adjacency matrix of the graph.
 }
 \description{
-This function estimates adjacency matrix of a Poisson models given a matrix of counts, using glm.
+This function estimates the adjacency matrix of a Poisson model given a
+matrix of counts, using the glm function.
 }

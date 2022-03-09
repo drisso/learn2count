@@ -2,24 +2,28 @@
 % Please edit documentation in R/PCzinb1noT.R
 \name{zinb1.noT}
 \alias{zinb1.noT}
-\title{This function estimates adjacency matrix of a zinb1 models given a matrix of counts, using optim.
-zinb1 models are zinb models with the structure is infered from both mu and pi}
+\title{Structure learning with zero-inflated negative binomial model}
 \usage{
 zinb1.noT(X, maxcard, alpha, extend)
 }
 \arguments{
-\item{X}{the matrix of counts.}
+\item{X}{the matrix of counts (n times p).}
 
-\item{maxcard}{the uper bound for cardinalities of conditional sets K}
+\item{maxcard}{the uper bound of the cardinality of the conditional sets K}
 
-\item{alpha}{the sisnificant level tests}
+\item{alpha}{the significant level of the tests}
 
-\item{extend}{TRUE if we consider the union of tests}
+\item{extend}{if TRUE it considers the union of the tests, otherwise it
+considers the intersection.}
 }
 \value{
-the adj matrix.
+the estimated adjacency matrix of the graph.
 }
 \description{
-This function estimates adjacency matrix of a zinb1 models given a matrix of counts, using optim.
-zinb1 models are zinb models with the structure is infered from both mu and pi
+This function estimates the adjacency matrix of a ZINB model given a matrix
+of counts, using the optim function.
+}
+\details{
+This approach assumes that the structure of the graph depends on both the
+mean parameter and the zero inflation parameter. We call this model `zinb1`.
 }

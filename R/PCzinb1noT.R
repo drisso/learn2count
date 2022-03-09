@@ -1,10 +1,17 @@
-#' This function estimates adjacency matrix of a zinb1 models given a matrix of counts, using optim.
-#' zinb1 models are zinb models with the structure is infered from both mu and pi
-#' @param alpha the sisnificant level tests
-#' @param X the matrix of counts.
-#' @param maxcard the uper bound for cardinalities of conditional sets K
-#' @param extend TRUE if we consider the union of tests
-#' @return the adj matrix.
+#' Structure learning with zero-inflated negative binomial model
+#'
+#' This function estimates the adjacency matrix of a ZINB model given a matrix
+#' of counts, using the optim function.
+#'
+#' This approach assumes that the structure of the graph depends on both the
+#' mean parameter and the zero inflation parameter. We call this model `zinb1`.
+#'
+#' @param X the matrix of counts (n times p).
+#' @param alpha the significant level of the tests
+#' @param maxcard the uper bound of the cardinality of the conditional sets K
+#' @param extend if TRUE it considers the union of the tests, otherwise it
+#'   considers the intersection.
+#' @return the estimated adjacency matrix of the graph.
 #' @export
 zinb1.noT <- function(X,maxcard,alpha, extend){
   p <- ncol(X)
