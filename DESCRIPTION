@@ -18,6 +18,8 @@ Imports:
     MASS,
     foreach,
     countreg,
+    methods,
+    S4Vectors,
     SummarizedExperiment
 Suggests: 
     knitr,

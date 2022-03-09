@@ -17,6 +17,7 @@ pois.wald <- function(X,maxcard,alpha,extend){
   adj <- matrix(1,p,p)
   diag(adj) <- 0
   ncard <- 0
+
   while (ncard <= maxcard) {
     V <-  foreach(i = 1:p, .combine = "cbind") %dopar%{
       neighbor <- which (adj[, i] == 1)

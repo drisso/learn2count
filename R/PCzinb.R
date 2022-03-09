@@ -1,6 +1,9 @@
 #' @rdname PCzinb
 #' @importFrom SummarizedExperiment assay
 #' @importClassesFrom SummarizedExperiment SummarizedExperiment
+#' @importFrom S4Vectors metadata `metadata<-`
+#' @param ... Arguments to pass to the matrix method.
+#' @param whichAssay The assay to use as input for the matrix method.
 #' @export
 #' @examples
 #' library(SummarizedExperiment)
@@ -26,6 +29,7 @@ setMethod(
 #'   is a SummarizedExperiment, a SummarizedExperiment object with the adjacency
 #'   matrix as metadata.
 #' @rdname PCzinb
+#' @importFrom stats pnorm
 #' @export
 #' @examples
 #' mat <- matrix(rpois(50, 5), nrow=10)

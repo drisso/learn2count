@@ -21,6 +21,10 @@ PCzinb(x, ...)
 \arguments{
 \item{x}{the matrix of counts (n times p) or a SummarizedExperiment containing such matrix (transposed).}
 
+\item{...}{Arguments to pass to the matrix method.}
+
+\item{whichAssay}{The assay to use as input for the matrix method.}
+
 \item{method}{the algorithm used to estimate the graph: `poi`, `nb`, `zinb0`,
 or `zinb1`. See details below.}
 

@@ -25,6 +25,7 @@
 #'   (2020). Structure learning for zero-inflated counts, with an application to
 #'   single-cell RNA sequencing data. arXiv:2011.12044.
 #'
+#' @import methods
 #' @rdname PCzinb
 setGeneric(
     name = "PCzinb",
