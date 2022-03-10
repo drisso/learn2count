@@ -9,3 +9,5 @@
 - Improved documentation
 - Addded S4 methods for a wrapper function, `PCzinb`, which should be the main function used by users
 - Added SummarizedExperiment support
+- Added vignette
+- Added new function, `QPtransform` to pre-process real data.

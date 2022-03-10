@@ -8,7 +8,7 @@
 \usage{
 PCzinb(x, ...)
 
-\S4method{PCzinb}{SummarizedExperiment}(x, whichAssay = 1, ...)
+\S4method{PCzinb}{SummarizedExperiment}(x, whichAssay = "processed", ...)
 
 \S4method{PCzinb}{matrix}(
   x,

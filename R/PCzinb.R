@@ -12,7 +12,11 @@
 setMethod(
     f = "PCzinb",
     signature = signature(x = "SummarizedExperiment"),
-    definition = function(x, whichAssay = 1, ...){
+    definition = function(x, whichAssay = "processed", ...){
+        if(whichAssay == "processed" & !whichAssay %in% assayNames(sce)) {
+            warning("We recommend to use QPtransform() before learning the graph.")
+            whichAssay <- 1
+        }
         adj <- PCzinb(t(assay(x, whichAssay)), ...)
         metadata(x)$adj_mat <- adj
         return(x)

@@ -31,3 +31,22 @@ setGeneric(
     name = "PCzinb",
     def = function(x, ...) standardGeneric("PCzinb")
 )
+
+#' Quantile matching and power transformation
+#'
+#' This function implements the preprocessing strategy discussed in Nguyen et al. (2020). We recommend this transformation when applying the PCzinb algorithm to real dataset.
+#'
+#' Briefly, the transformation consists of two steps: (i) matching of the 95 percentile across cells
+#' to account for sequencing depth; (ii) adjusting the data to be closer to a zinb distribution
+#' by using a power transformation $X^\alpha$,  where $\alpha \in [0,1]$ is chosen to minimize the
+#' Kolmogorov-Smirnov statistic.
+#'
+#' @references Nguyen, T. K. H., Berge, K. V. D., Chiogna, M., & Risso, D.
+#'   (2020). Structure learning for zero-inflated counts, with an application to
+#'   single-cell RNA sequencing data. arXiv:2011.12044.
+#'
+#' @rdname QPtransform
+setGeneric(
+    name = "QPtransform",
+    def = function(x, ...) standardGeneric("QPtransform")
+)
