@@ -1,7 +1,7 @@
 ---
 title: "Introduction to the `learn2count` package"
 author: "Kim Hue Nguyen and Davide Risso"
-date: "Last modified: November 7, 2020; Compiled: `r format(Sys.time(), '%B %d, %Y')`"
+date: "Last modified: March 10, 2022; Compiled: `r format(Sys.time(), '%B %d, %Y')`"
 bibliography: refs.bib
 output:
   BiocStyle::html_document:
@@ -88,7 +88,6 @@ est <- PCzinb(mat, method="poi", maxcard=3, alpha=0.1)
 sparse_est <- as(est, "dgCMatrix")
 graph_est <- as(sparse_est, "graphNEL")
 plot(graph_est)
-# sum(abs(est-adj)[lower.tri(est)])
 ```
 
 # Mouse OE data
@@ -102,7 +101,7 @@ sce <- FletcherOlfactoryData()
 ```
 
 We focus here on the neuronal lineage, i.e., the cells that from HBC mature into neurons.
-Furthermore, we select the set of 100 most variable genes and the 200 cells with the highest means.
+Furthermore, we select the set of 10 most variable genes and the 200 cells with the highest means.
 
 We use this low-dimensional dataset in this vignette for computational reasons, but a real use case would involved a greater number of genes and cells, see @nguyen2020structure for a more realistic example.
 
@@ -112,12 +111,12 @@ However, it is in general a good idea to focus on a subset of highly-variable ge
 neuronal <- sce[,!sce$cluster_label %in% c("iSus", "mSus", "MVC1", "MVC2")]
 var <- modelGeneVarByPoisson(neuronal)
 var <- var[order(var$bio, decreasing = TRUE),]
-top100 <- neuronal[rownames(var)[1:100],]
+top10 <- neuronal[rownames(var)[1:10],]
 
-means <- colMeans(counts(top100))
-names(means) <- colnames(top100)
+means <- colMeans(counts(top10))
+names(means) <- colnames(top10)
 means <- sort(means, decreasing = TRUE)
-top <- top100[,names(means)[1:200]]
+top <- top10[,names(means)[1:200]]
 top
 ```
 
@@ -133,6 +132,7 @@ This procedure is implemented in the `QPtransform()` function.
 
 ```{r preprocess}
 top <- QPtransform(top)
+top
 ```
 
 ## PCzinb
@@ -140,8 +140,8 @@ top <- QPtransform(top)
 We are now ready to reconstruct the graph using our PCzinb algorithm. The function, when applied to a SummarizedExperiment (or object inheriting from it) returns a SummarizedExperiment with the adjacency matrix of the graph in the metadata slot.
 
 ```{r zinb}
-# top <- PCzinb(top, method="zinb1")
-adj <- PCzinb(t(counts(top)), method="zinb1")
+top <- PCzinb(top, method="poi")
+top
 ```
 
 `method="zinb1"` specifies a model in which the structure of the graph is attributable to both of the two parameter components $\mu$ and $\pi$ of the zero-inflated negative binomial. 
@@ -149,6 +149,13 @@ adj <- PCzinb(t(counts(top)), method="zinb1")
 If we want to infer the structure from only $\mu$, then we may specify `method="zinb0"`.
 
 Alternatively, one can set `method="nb"` to fit negative binomial models, or `method="poi"` to fit Poisson models. While less flexible, these method are much more computataionally efficient.
+
+We can now visualize the resulting graph, e.g., with the gRbase package.
+
+```{r visualize}
+graph_est <- as(metadata(top)$adj_mat, "graphNEL")
+plot(graph_est)
+```
 
 ## Parameter choice
 

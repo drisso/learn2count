@@ -4,6 +4,7 @@
 #' @importFrom S4Vectors metadata `metadata<-`
 #' @param ... Arguments to pass to the matrix method.
 #' @param whichAssay The assay to use as input for the matrix method.
+#' @importClassesFrom Matrix dgCMatrix
 #' @export
 #' @examples
 #' library(SummarizedExperiment)
@@ -13,12 +14,14 @@ setMethod(
     f = "PCzinb",
     signature = signature(x = "SummarizedExperiment"),
     definition = function(x, whichAssay = "processed", ...){
-        if(whichAssay == "processed" & !whichAssay %in% assayNames(sce)) {
+        if(whichAssay == "processed" & !whichAssay %in% assayNames(x)) {
             warning("We recommend to use QPtransform() before learning the graph.")
             whichAssay <- 1
         }
         adj <- PCzinb(t(assay(x, whichAssay)), ...)
-        metadata(x)$adj_mat <- adj
+        metadata(x)$adj_mat <- as(adj, "dgCMatrix")
+        rownames(metadata(x)$adj_mat) <- rownames(x)
+
         return(x)
 })
 

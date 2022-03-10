@@ -33,11 +33,11 @@ Kolmogorov-Smirnov statistic.
 }
 \examples{
 library(SummarizedExperiment)
-se <- SummarizedExperiment(matrix(rpois(50, 5), ncol=10))
-se <- QPtransform(se)
+se <- SummarizedExperiment(assays=list(counts=matrix(rpois(50, 5), ncol=10)))
+suppressWarnings(se <- QPtransform(se))
 se
 mat <- matrix(rpois(50, 5), nrow=10)
-QPtransform(mat)
+suppressWarnings(QPtransform(mat))
 }
 \references{
 Nguyen, T. K. H., Berge, K. V. D., Chiogna, M., & Risso, D.
