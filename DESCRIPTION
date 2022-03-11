@@ -20,12 +20,15 @@ Imports:
     countreg,
     methods,
     S4Vectors,
-    SummarizedExperiment
+    SummarizedExperiment,
+    Matrix,
+    iZID
 Suggests: 
     knitr,
     testthat,
     BiocStyle,
-    gRbase
+    gRbase,
+    igraph
 Remotes:
     rforge/countreg/pkg
 Encoding: UTF-8

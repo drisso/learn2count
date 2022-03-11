@@ -21,6 +21,7 @@ setMethod(
         adj <- PCzinb(t(assay(x, whichAssay)), ...)
         metadata(x)$adj_mat <- as(adj, "dgCMatrix")
         rownames(metadata(x)$adj_mat) <- rownames(x)
+        colnames(metadata(x)$adj_mat) <- rownames(x)
 
         return(x)
 })

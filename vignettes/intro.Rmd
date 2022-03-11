@@ -68,6 +68,7 @@ First, we use the `gRbase` package to simulate a graph with 10 nodes.
 
 ```{r set_graph}
 library(gRbase)
+library(igraph)
 graph <- ug(~ 1:2:3 + 3:4:5 + 4:5:6 + 6:7 + 8:5:9:10)
 plot(graph)
 adj <- as(graph, "matrix")
@@ -85,8 +86,8 @@ Finally, we can use the main `PCzinb` function to estimate the graph.
 
 ```{r est_sim}
 est <- PCzinb(mat, method="poi", maxcard=3, alpha=0.1)
-sparse_est <- as(est, "dgCMatrix")
-graph_est <- as(sparse_est, "graphNEL")
+colnames(est) <- as.character(1:10)
+graph_est <- graph_from_adjacency_matrix(est, mode="undirected")
 plot(graph_est)
 ```
 
@@ -153,8 +154,8 @@ Alternatively, one can set `method="nb"` to fit negative binomial models, or `me
 We can now visualize the resulting graph, e.g., with the gRbase package.
 
 ```{r visualize}
-graph_est <- as(metadata(top)$adj_mat, "graphNEL")
-plot(graph_est)
+graph_est <- graph_from_adjacency_matrix(metadata(top)$adj_mat, mode="undirected")
+plot(graph_est, vertex.size=20, vertex.label.cex=.5)
 ```
 
 ## Parameter choice
