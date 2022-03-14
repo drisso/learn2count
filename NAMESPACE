@@ -3,6 +3,7 @@
 export(nb.wald)
 export(nbscale.noT)
 export(pois.wald)
+export(prediction_scores)
 export(simdata)
 export(zinb0.noT)
 export(zinb1.noT)

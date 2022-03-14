@@ -96,6 +96,15 @@ graph_est <- graph_from_adjacency_matrix(est, mode="undirected")
 plot(graph_est)
 ```
 
+We can see from comparing the graphs that the algorithm has done a good job, but if we want a more formal
+evaluation, we can use the `prediction_scores()` function.
+
+```{r score}
+prediction_scores(adj, est)
+```
+
+In this case, we can see that `PCzinb` is able to identify 12 true positive edges, with 1 false positive and 3 false negatives.  
+
 # Mouse OE data
 
 To illustrate the typical use of the package on real data, we analyze a set of cells, whose RNA profiles are assayed after injury of the mouse olfactory epithelium (OE), to characterize Horizontal Basal Cells (HBC) and their descendants during regeneration [@Fletcher2017], available through the `scRNAseq` package.
