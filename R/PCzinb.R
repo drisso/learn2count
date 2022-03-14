@@ -1,5 +1,5 @@
 #' @rdname PCzinb
-#' @importFrom SummarizedExperiment assay
+#' @importFrom SummarizedExperiment assay assayNames `assay<-`
 #' @importClassesFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors metadata `metadata<-`
 #' @param ... Arguments to pass to the matrix method.

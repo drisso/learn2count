@@ -28,7 +28,9 @@ Suggests:
     testthat,
     BiocStyle,
     gRbase,
-    igraph
+    igraph,
+    scRNAseq,
+    scran
 Remotes:
     rforge/countreg/pkg
 Encoding: UTF-8

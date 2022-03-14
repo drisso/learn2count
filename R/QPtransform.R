@@ -19,7 +19,7 @@ setMethod(
 #'   is a SummarizedExperiment, a SummarizedExperiment object with the processed
 #'   matrix as an additional assay.
 #' @rdname QPtransform
-#' @importFrom stats pnorm
+#' @importFrom stats pnorm quantile
 #' @export
 #' @examples
 #' mat <- matrix(rpois(50, 5), nrow=10)

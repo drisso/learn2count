@@ -13,6 +13,11 @@ QPtransform(x, ...)
 \S4method{QPtransform}{matrix}(x)
 }
 \arguments{
+\item{x}{the matrix of counts (n times p) or a SummarizedExperiment
+containing such matrix (transposed).}
+
+\item{...}{Additional arguments (currently not used).}
+
 \item{assay_from}{The assay with the input count data.}
 
 \item{assay_to}{The assay in which to store the processed data.}
@@ -23,12 +28,15 @@ if x is a matrix, a matrix with the processed data; if x
   matrix as an additional assay.
 }
 \description{
-This function implements the preprocessing strategy discussed in Nguyen et al. (2020). We recommend this transformation when applying the PCzinb algorithm to real dataset.
+This function implements the preprocessing strategy discussed in Nguyen et
+al. (2020). We recommend this transformation when applying the PCzinb
+algorithm to real dataset.
 }
 \details{
-Briefly, the transformation consists of two steps: (i) matching of the 95 percentile across cells
-to account for sequencing depth; (ii) adjusting the data to be closer to a zinb distribution
-by using a power transformation $X^\alpha$,  where $\alpha \in [0,1]$ is chosen to minimize the
+Briefly, the transformation consists of two steps: (i) matching of the 95
+percentile across cells to account for sequencing depth; (ii) adjusting the
+data to be closer to a zinb distribution by using a power transformation
+\eqn{X^\alpha}, where \eqn{\alpha \in [0,1]} is chosen to minimize the
 Kolmogorov-Smirnov statistic.
 }
 \examples{
