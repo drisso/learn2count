@@ -22,8 +22,9 @@ estimation of the graph on simulated data, or whenever a true graph is
 available.
 }
 \examples{
+set.seed(123)
 adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow=3)
-mat <- simdata(n=10, p=3, B=adj, mu=5, mu_noise=1)
-res <- PCzinb(mat, method="poi")
+mat <- simdata(n=100, p=3, B=adj, mu=5, mu_noise=1)
+res <- PCzinb(mat, method="poi", alpha=0.05)
 prediction_scores(adj, res)
 }
