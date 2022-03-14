@@ -1,4 +1,4 @@
-# Version 0.2.0 (2022-03-08)
+# Version 0.2.0 (2022-03-14)
 
 - Major restructuring of the package
 - New function `simdata` now substitutes the three original simulation functions
@@ -11,3 +11,4 @@
 - Added SummarizedExperiment support
 - Added vignette
 - Added new function, `QPtransform` to pre-process real data.
+- Added new function, `prediction_scores` to evaluate the estimated graph.
