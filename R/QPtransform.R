@@ -89,8 +89,8 @@ power_transf <- function(fX) {
 #' @importFrom iZID nb.zihmle
 #' @importFrom stats pnbinom
 KS.statistic <- function(x,r,p){
-    mle_ori <- nb.zihmle(x, r, p, type = "zi", lowerbound=1e-04,
-                         upperbound=10^6)
+    mle_ori <- suppressWarnings(nb.zihmle(x, r, p, type = "zi", lowerbound=1e-04,
+                         upperbound=10^6))
     probs_ori <- mle_ori[3] + (1 - mle_ori[3]) * stats::pnbinom(0:max(x),
                                                                 size = ceiling(mle_ori[1]),
                                                                 prob = mle_ori[2])
