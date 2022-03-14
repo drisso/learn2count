@@ -1,0 +1,185 @@
+---
+title: "Introduction to the `learn2count` package"
+author: "Kim Hue Nguyen and Davide Risso"
+date: "Last modified: March 10, 2022; Compiled: `r format(Sys.time(), '%B %d, %Y')`"
+bibliography: refs.bib
+output:
+  BiocStyle::html_document:
+    toc: true
+vignette: >
+  %\VignetteEncoding{UTF-8}
+---
+
+<!--
+%\VignetteEngine{knitr::rmarkdown}
+%\VignetteIndexEntry{learn2count vignette}
+-->
+
+# Installation
+
+The recommended way to install the `learn2count` package is
+
+```{r, eval=FALSE}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("learn2count")
+```
+
+
+# Introduction
+
+```{r options, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(warning=FALSE, error=FALSE, message=FALSE)
+set.seed(123)
+```
+
+This vignette provides an introductory example on how to work with the `learn2count` package, which implements the structure learning methods proposed in @nguyen2020structure. First, let us load the packages and set serial computations.
+
+```{r load_packs}
+library(foreach)
+library(learn2count)
+
+# Register sequential computations 
+# see the `doParallel` package for parallel computations
+registerDoSEQ()
+```
+
+# The ZINB model
+
+ZINB is a general and flexible model for Structure learning of high-dimensional zero-inflated count data, such as those recorded in single-cell RNA-seq assays. Given \(n\) samples (typically, \(n\) single cells) and \(p\) features (typically, \(p\) genes) that can be counted for each sample, we denote with \(X_{is}\) the count of feature \(s\) (\(s=1,\ldots,p\)) for sample \(i\) (\(i=1,\ldots,n\)). To account for various technical and
+biological effects, typical of single-cell sequencing
+technologies, we model \(X_{is}\) conditional to all possible subsets  of variables \(\mathbf{x}^{(i)}_{K}, \, K\subseteq V\) is a zero-inflated negative binomial (zinb) distribution with parameters \(\mu_{is|K}\), \(\theta_{s|K}\), and
+\(\pi_{is|K}\), and consider the following regression models for the parameters:
+
+\begin{equation}\label{localcondzinb}
+    f_{zinb}(x_{is};\mu_{is|K},\theta_{s},\pi_{is|K}|\mathbf{x}^{(i)}_{K\setminus\{s\}})= \pi_{is|K}\delta_0(x_{is})+(1-\pi_{is|K})f_{nb}(x_{is},\mu_{is|K},\theta_{s}|\mathbf{x}^{(i)}_{K\setminus\{s\}}),
+\end{equation}
+where \(\delta_0(.)\) is the Dirac function,   \(\pi_{is|K}\in [0,1]\) is the probability that a 0 is sampled from a distribution degenerate at zero and \(f_{nb}(.,\mu,\theta)\) denotes the probability mass function of the negative binomial (NB) distribution with mean $\mu$ and inverse dispersion parameter \(\theta.\) We assume that
+\begin{align}
+	\ln(\mu_{is|K})&= \nu^{\mu}_{s|K}+\sum_{t\in K\setminus\{s\}} \beta^{\mu}_{st|K}x_{it}\label{link-mu},\\
+\text{logit}(1-\pi_{is|K})&=\nu^{\pi}_{s|K}+\sum_{t\in K\setminus\{s\}} \beta^\pi_{st|K}x_{it}.\label{link-pi}
+\end{align}
+
+When both  $\mu_{is|K}$ and $\pi_{is|K}$,  are not constant, a missing edge between node $s$ and node $t$ corresponds to the condition $\beta^{\mu}_{st|K}=\beta^{\mu}_{ts|K}=\beta^{\pi}_{st|K}=\beta^{\pi}_{ts|K}= 0, \,\, \forall K \subseteq V\setminus \{s\}.$ On the other hand, one edge between node $s$ and node $t$ implies that at least one of four parameters $\beta^{\mu}_{st|K}, \beta^{\mu}_{ts|K}, \beta^{\pi}_{st|K}, \beta^{\pi}_{ts|K}$ is different from 0.
+
+This specification defines a family of models that includes the most common models employed  with count data and embraces a variety of situations. It is quite evident that, when 
+$\pi_{is|K} = 0, \,\, \forall \ K \subseteq V\setminus \{s\},$ the model reduces to a NB distribution, which, in turn reduces to a Poisson distribution when the inverse dispersion parameter  $\theta_s$ tends to infinity. When $\pi_{is|K} > 0,$ zero-inflation comes into play and zero-inflated Poisson and NB models can be considered. In this case, when $\beta^{\pi}_{st|K} = 0,\,\, \forall \,\,t\in K\setminus\{s\},$  the neighborhood of a node $s$ is defined to be the set of effective predictors of $\mu_{is|K}$ and consists of all nodes $t$ for which $\beta^{\mu}_{st|K} \ne 0.$ On the other side, when $\beta^{\mu}_{st|K} = 0,\,\, \forall\,\, t\in K\setminus\{s\},$  the neighborhood of a node $s$ is defined to be the set of effective predictors of $\pi_{is|K}$ and consists of all nodes $t$ for which $\beta^{\pi}_{st|K} \ne 0.$ In other words, the family includes models in which the structure of the graph is attributable only to one of the two parameter components, $\pi_{is|K}$ or $\mu_{is|K}.$ 
+
+# Simulated dataset
+
+To illustrate the main functionalities of the package, we first make use of simulated data. This also allows us to showcase the simulation function that we provide as part of `learn2count`.
+
+First, we use the `gRbase` package to simulate a graph with 10 nodes.
+
+```{r set_graph}
+library(gRbase)
+library(igraph)
+graph <- ug(~ 1:2:3 + 3:4:5 + 4:5:6 + 6:7 + 8:5:9:10)
+plot(graph)
+adj <- as(graph, "matrix")
+```
+
+We can now use this adjacency matrix to simulate some data, for instance with `n=100` observations.
+
+```{r sim}
+set.seed(1130)
+mat <- simdata(n=200, p=10, B=adj, family="Poisson", mu=5, mu_noise=1)
+mat[1:3,1:3]
+```
+
+Finally, we can use the main `PCzinb` function to estimate the graph.
+
+```{r est_sim}
+est <- PCzinb(mat, method="poi", maxcard=3, alpha=0.1)
+colnames(est) <- as.character(1:10)
+graph_est <- graph_from_adjacency_matrix(est, mode="undirected")
+plot(graph_est)
+```
+
+We can see from comparing the graphs that the algorithm has done a good job, but if we want a more formal
+evaluation, we can use the `prediction_scores()` function.
+
+```{r score}
+prediction_scores(adj, est)
+```
+
+In this case, we can see that `PCzinb` is able to identify 12 true positive edges, with 1 false positive and 3 false negatives.  
+
+# Mouse OE data
+
+To illustrate the typical use of the package on real data, we analyze a set of cells, whose RNA profiles are assayed after injury of the mouse olfactory epithelium (OE), to characterize Horizontal Basal Cells (HBC) and their descendants during regeneration [@Fletcher2017], available through the `scRNAseq` package.
+
+```{r datain}
+library(scRNAseq)
+library(scran)
+sce <- FletcherOlfactoryData()
+```
+
+We focus here on the neuronal lineage, i.e., the cells that from HBC mature into neurons.
+Furthermore, we select the set of 10 most variable genes and the 200 cells with the highest means.
+
+We use this low-dimensional dataset in this vignette for computational reasons, but a real use case would involved a greater number of genes and cells, see @nguyen2020structure for a more realistic example.
+
+However, it is in general a good idea to focus on a subset of highly-variable genes, in order to remove transcriptional noise and focus on the more biologically meaningful signals.
+
+```{r fletcher}
+neuronal <- sce[,!sce$cluster_label %in% c("iSus", "mSus", "MVC1", "MVC2")]
+var <- modelGeneVarByPoisson(neuronal)
+var <- var[order(var$bio, decreasing = TRUE),]
+top10 <- neuronal[rownames(var)[1:10],]
+
+means <- colMeans(counts(top10))
+names(means) <- colnames(top10)
+means <- sort(means, decreasing = TRUE)
+top <- top10[,names(means)[1:200]]
+top
+```
+
+## Preprocessing
+
+We now apply a normalization procedure that allows us to get numerically more stable and computationally more efficient results.
+
+While we show in @nguyen2020structure that the results with and without preprocessing are similar, we generally recommend to apply this preprocessing to real data, as it can speed up the computation substantially.
+
+Our preprocessing strategy is described in detail in @nguyen2020structure. Briefly, we match the 95 percentiles across cells to account for differences in sequencing depth and we adjust the data to be closer to a zinb distribution by using a power transformation $X^\alpha$,  where $\alpha \in [0,1]$ is chosen to minimize the distance between the empirical distribution and the zinb distribution, measured by Kolmogorov-Smirnov statistics.
+
+This procedure is implemented in the `QPtransform()` function.
+
+```{r preprocess}
+top <- QPtransform(top)
+top
+```
+
+## PCzinb
+
+We are now ready to reconstruct the graph using our PCzinb algorithm. The function, when applied to a SummarizedExperiment (or object inheriting from it) returns a SummarizedExperiment with the adjacency matrix of the graph in the metadata slot.
+
+```{r zinb}
+top <- PCzinb(top, method="poi")
+top
+```
+
+`method="zinb1"` specifies a model in which the structure of the graph is attributable to both of the two parameter components $\mu$ and $\pi$ of the zero-inflated negative binomial. 
+
+If we want to infer the structure from only $\mu$, then we may specify `method="zinb0"`.
+
+Alternatively, one can set `method="nb"` to fit negative binomial models, or `method="poi"` to fit Poisson models. While less flexible, these method are much more computataionally efficient.
+
+We can now visualize the resulting graph, e.g., with the gRbase package.
+
+```{r visualize}
+graph_est <- graph_from_adjacency_matrix(metadata(top)$adj_mat, mode="undirected")
+plot(graph_est, vertex.size=20, vertex.label.cex=.5)
+```
+
+## Parameter choice
+
+The parameter `maxcard` controls the maximum number of varibales that is considered in the conditional sets. In this case, `maxcard` is set to its default value of 2. 
+
+The parameter `alpha` is the significant level of the tests. By default it is set to $\alpha=2(1-\Phi(n^{0.2}))$, which is chosen to control the Type I error of all tests [@JMLR:v22:18-401].
+
+
+Finally, the parameter `extend=TRUE` considers the union of the tests to infer the edge of the graph. If it is set to `FALSE` it will consider the intersection instead.
+
+# References
+

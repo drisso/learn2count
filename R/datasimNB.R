@@ -7,13 +7,12 @@
 #' @param mu.nois mean of noise
 #' @param theta dispersion parameter of negative binomial, where \eqn{var=\mu+\mu^2/theta}
 #' @param B adjacency matrix
-#' @export
 nbinom.Simdata <- function(n, p,B,mu,mu.nois,theta){
   set.seed(123)
 # create "adjacency" matrix A from the adjacency matrix B
   if(nrow(B) != ncol(B)){
     print("not a symmetric matrix")
-    return
+    return()
   }
   A <- diag(1,nrow=nrow(B),ncol=ncol(B))
   for(i in 1:(nrow(B)-1)){
@@ -34,10 +33,10 @@ nbinom.Simdata <- function(n, p,B,mu,mu.nois,theta){
     nonzero.sigma <- ltri.sigma[which(ltri.sigma !=0 )]
     Y.mu <- c(rep(mu,nrow(sigma)), nonzero.sigma)
     ## data matrix X
-    Y <-  matrix(unlist(do.call(rbind, parallel::mclapply(Y.mu,function(i) {rnbinom(n,mu=i,theta)}))),length(Y.mu),n)
+    Y <-  matrix(unlist(do.call(rbind, lapply(Y.mu,function(i) {rnbinom(n,mu=i,theta)}))),length(Y.mu),n)
     X <- A%*%Y
     # add the labmda.c to all the nodes.
-    X <- X + matrix(unlist(do.call(rbind, parallel::mclapply(rep(mu.nois,p),function(i) {rnbinom(n,mu=i,theta)}))),p,n)
+    X <- X + matrix(unlist(do.call(rbind, lapply(rep(mu.nois,p),function(i) {rnbinom(n,mu=i,theta)}))),p,n)
 
     return(t(X))
 }

@@ -1,10 +1,17 @@
-#' This function estimates adjacency matrix of a zinb1 models given a matrix of counts, using optim.
-#' zinb1 models are zinb models with the structure is infered from both mu and pi
-#' @param alpha the sisnificant level tests
-#' @param X the matrix of counts.
-#' @param maxcard the uper bound for cardinalities of conditional sets K
-#' @param extend TRUE if we consider the union of tests
-#' @return the adj matrix.
+#' Structure learning with zero-inflated negative binomial model
+#'
+#' This function estimates the adjacency matrix of a ZINB model given a matrix
+#' of counts, using the optim function.
+#'
+#' This approach assumes that the structure of the graph depends on both the
+#' mean parameter and the zero inflation parameter. We call this model `zinb1`.
+#'
+#' @param X the matrix of counts (n times p).
+#' @param alpha the significant level of the tests
+#' @param maxcard the uper bound of the cardinality of the conditional sets K
+#' @param extend if TRUE it considers the union of the tests, otherwise it
+#'   considers the intersection.
+#' @return the estimated adjacency matrix of the graph.
 #' @export
 zinb1.noT <- function(X,maxcard,alpha, extend){
   p <- ncol(X)
@@ -27,7 +34,7 @@ zinb1.noT <- function(X,maxcard,alpha, extend){
           #2. Estimate parameters of ZINB model with zeta.i given by the first step
           fitadd <- try(fitadd <- optim_funnoT (beta_mu= rep(1,p), gamma_pi=rep(1,p), Y=X[,i],
                                                 X_mu=X[,-i], zeta.i, n),silent = TRUE)
-          if(class(fitadd) == "try-error"){
+          if(is(fitadd, "try-error")){
              fit <- glm(X[,i]~X[,-i],family = "poisson")
              fitadd <- optim_funnoT (beta_mu= fit$coefficients, gamma_pi=rep(1,p), Y=X[,i],
                                     X_mu=X[,-i], zeta.i, n)
@@ -66,7 +73,7 @@ zinb1.noT <- function(X,maxcard,alpha, extend){
              return(zeta.i)
         }, silent = TRUE)
   #)
-  if (is.matrix(zeta)==FALSE){
+  if (!is.matrix(zeta)){
     zeta <-  foreach(i = 1:p, .combine = "cbind",.export = c("zinb.regression.parseModel",
                                                              "zinbOptimizeDispersion",
                                                              "zinb.loglik.dispersion",
@@ -103,8 +110,8 @@ zinb1.noT <- function(X,maxcard,alpha, extend){
         condset.temp <- condset
         indcond <- FALSE
         k <- 1
-        while (indcond == FALSE & k <= length(condset.temp)){
-           if (neighbor[j] %in% condset.temp[[k]] == FALSE){
+        while (!indcond & k <= length(condset.temp)){
+           if (!(neighbor[j] %in% condset.temp[[k]])){
 
              # initial value
              beta_mu <- c(glm(X[,i]~scale(X[,c(neighbor[j], condset.temp[[k]])])
@@ -151,7 +158,7 @@ zinb1.noT <- function(X,maxcard,alpha, extend){
                 }
               return(adj[,i])
               }
-    if (extend == TRUE){
+    if (extend){
       adj <- V + t(V)
       adj[which(adj != 0)] <-1
     }else

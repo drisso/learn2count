@@ -1,10 +1,14 @@
-#' This function estimates adjacency matrix of a NB models given a matrix of counts, using glm.
+#' Structure learning with negative binomial model using glm
 #'
-#' @param alpha the sisnificant level tests
-#' @param X the matrix of counts.
-#' @param maxcard the uper bound for cardinalities of conditional sets K
-#' @param extend TRUE if we consider the union of tests
-#' @return the adj matrix.
+#' This function estimates the adjacency matrix of a NB model given a matrix of
+#' counts, using the glm.nb function.
+#'
+#' @param X the matrix of counts (n times p).
+#' @param alpha the significant level of the tests
+#' @param maxcard the uper bound of the cardinality of the conditional sets K
+#' @param extend if TRUE it considers the union of the tests, otherwise it
+#'   considers the intersection.
+#' @return the estimated adjacency matrix of the graph.
 #' @export
 #' @importFrom MASS glm.nb negative.binomial
 #' @importFrom utils combn
@@ -24,8 +28,8 @@ nb.wald <- function(X,maxcard,alpha, extend){
           condset.temp <- condset
           indcond <- FALSE
           k <- 1
-          while (indcond == FALSE & k <= length(condset.temp)){
-            if (neighbor[j] %in% condset.temp[[k]] == FALSE){
+          while (!indcond & k <= length(condset.temp)){
+            if (!(neighbor[j] %in% condset.temp[[k]])){
               # fit model with new edges c(neighbor[j]
               X_new <- scale(as.matrix(cbind(X[,c(neighbor[j], condset.temp[[k]])]),
                                  nrow=n, ncol=ncard+1))
@@ -33,7 +37,7 @@ nb.wald <- function(X,maxcard,alpha, extend){
               colnames(data) <- paste("V", 1:(ncard+2), sep="")
               fmla <- as.formula(paste("V1 ~ ", paste(colnames(data)[-1], collapse= "+")))
               fitadd <- try(glm.nb(fmla, data = data,link = "log"),silent = TRUE)
-              if (class(fitadd) =="try-error"){
+              if (is(fitadd, "try-error")){
                 fitadd <- glm(X[,i]~scale(X_new),family = negative.binomial(theta = 1))
               }
 

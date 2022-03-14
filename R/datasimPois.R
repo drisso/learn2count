@@ -6,14 +6,13 @@
 #' @param lambda mean of Poisson
 #' @param lambda.c mean of noise
 #' @param B adjacency matrix
-#' @export
 #' @importFrom stats rpois
 pois.simdata <- function(n, p,B,lambda,lambda.c){
 
   # create "adjacency" matrix A from the adjacency matrix B
   if(nrow(B) != ncol(B)){
     print("not a symmetric matrix")
-    return
+    return()
   }
   A <- diag(1,nrow=nrow(B),ncol=ncol(B))
   for(i in 1:(nrow(B)-1)){
@@ -32,10 +31,10 @@ pois.simdata <- function(n, p,B,lambda,lambda.c){
     nonzero.sigma <- ltri.sigma[which(ltri.sigma !=0 )]
     Y.lambda <- c(rep(lambda,nrow(sigma)), nonzero.sigma)
   ### data matrix X
-    Y <- matrix(unlist( do.call(rbind, parallel::mclapply(Y.lambda,function(i) { rpois(n,i)}))),length(Y.lambda),n)
+    Y <- matrix(unlist( do.call(rbind, lapply(Y.lambda,function(i) { rpois(n,i)}))),length(Y.lambda),n)
     X <- A%*%Y
     # add the labmda.c to all the nodes.
-    X <- X + matrix(unlist(do.call(rbind, parallel::mclapply(rep(lambda.c,p),function(i) { rpois(n,i)}))) ,p,n)
+    X <- X + matrix(unlist(do.call(rbind, lapply(rep(lambda.c,p),function(i) { rpois(n,i)}))) ,p,n)
 
   return(t(X))
 }

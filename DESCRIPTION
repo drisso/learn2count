@@ -1,7 +1,7 @@
 Package: learn2count
 Type: Package
 Title: Structure Learning for Count Data
-Version: 0.1.3
+Version: 0.2.0
 Authors@R: 
     c(person("Davide","Risso", role=c("aut","cre", "cph"), 
           email="risso.davide@gmail.com"),
@@ -15,21 +15,33 @@ Description:
    single-cell RNA-seq data.
 License: Artistic-2.0
 Imports: 
-  MASS,
-  foreach,
-  countreg
+    MASS,
+    foreach,
+    countreg,
+    methods,
+    S4Vectors,
+    SummarizedExperiment,
+    Matrix,
+    iZID
+Suggests: 
+    knitr,
+    testthat,
+    BiocStyle,
+    gRbase,
+    igraph,
+    scRNAseq,
+    scran
 Remotes:
-  rforge/countreg/pkg
-Suggests: knitr
+    rforge/countreg/pkg
 Encoding: UTF-8
 VignetteBuilder: knitr
 LazyData: true
 biocViews:
-  GeneExpression,
-  RNASeq,
-  Software,
-  Transcriptomics,
-  Sequencing,
-  SingleCell
+    GeneExpression,
+    RNASeq,
+    Software,
+    Transcriptomics,
+    Sequencing,
+    SingleCell
 BugReports: https://github.com/drisso/learn2count/issues
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2

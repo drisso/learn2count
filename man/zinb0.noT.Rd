@@ -2,24 +2,29 @@
 % Please edit documentation in R/PCzinb0noT.R
 \name{zinb0.noT}
 \alias{zinb0.noT}
-\title{This function estimates adjacency matrix of a zinb0 models given a matrix of counts, using optim.
-zinb0 models are zinb models with the structure is infered from mu (only)}
+\title{Structure learning with zero-inflated negative binomial model (mean only)}
 \usage{
 zinb0.noT(X, maxcard, alpha, extend)
 }
 \arguments{
-\item{X}{the matrix of counts.}
+\item{X}{the matrix of counts (n times p).}
 
-\item{maxcard}{the uper bound for cardinalities of conditional sets K}
+\item{maxcard}{the uper bound of the cardinality of the conditional sets K}
 
-\item{alpha}{the sisnificant level tests}
+\item{alpha}{the significant level of the tests}
 
-\item{extend}{TRUE if we consider the union of tests}
+\item{extend}{if TRUE it considers the union of the tests, otherwise it
+considers the intersection.}
 }
 \value{
-the adj matrix.
+the estimated adjacency matrix of the graph.
 }
 \description{
-This function estimates adjacency matrix of a zinb0 models given a matrix of counts, using optim.
-zinb0 models are zinb models with the structure is infered from mu (only)
+This function estimates the adjacency matrix of a ZINB model given a matrix
+of counts, using the optim function.
+}
+\details{
+This approach assumes that the structure of the graph only depends on the
+mean parameter, treating zero inflation as a technical noise effect. We call
+this model `zinb0`.
 }
