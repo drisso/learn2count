@@ -28,8 +28,8 @@ nb.wald <- function(X,maxcard,alpha, extend){
           condset.temp <- condset
           indcond <- FALSE
           k <- 1
-          while (indcond == FALSE & k <= length(condset.temp)){
-            if (neighbor[j] %in% condset.temp[[k]] == FALSE){
+          while (!indcond & k <= length(condset.temp)){
+            if (!(neighbor[j] %in% condset.temp[[k]])){
               # fit model with new edges c(neighbor[j]
               X_new <- scale(as.matrix(cbind(X[,c(neighbor[j], condset.temp[[k]])]),
                                  nrow=n, ncol=ncard+1))
@@ -37,7 +37,7 @@ nb.wald <- function(X,maxcard,alpha, extend){
               colnames(data) <- paste("V", 1:(ncard+2), sep="")
               fmla <- as.formula(paste("V1 ~ ", paste(colnames(data)[-1], collapse= "+")))
               fitadd <- try(glm.nb(fmla, data = data,link = "log"),silent = TRUE)
-              if (class(fitadd) =="try-error"){
+              if (is(fitadd, "try-error")){
                 fitadd <- glm(X[,i]~scale(X_new),family = negative.binomial(theta = 1))
               }
 

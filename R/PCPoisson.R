@@ -27,8 +27,8 @@ pois.wald <- function(X,maxcard,alpha,extend){
           condset.temp <- condset
           indcond <- FALSE
           k <- 1
-          while (indcond == FALSE & k <= length(condset.temp)){
-            if (neighbor[j] %in% condset.temp[[k]] == FALSE){
+          while (!indcond & k <= length(condset.temp)){
+            if (!(neighbor[j] %in% condset.temp[[k]])){
               fit <- glm(X[,i] ~ scale(X[,c(neighbor[j], condset.temp[[k]])]),
                          family="poisson")
               if (coefficients(summary(fit))[2,4] > alpha){
