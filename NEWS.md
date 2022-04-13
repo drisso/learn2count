@@ -1,3 +1,8 @@
+# Version 0.2.1 (2022-03-17)
+
+- Use `glmGamPoi` package for estimation of Poisson and NB models
+
+
 # Version 0.2.0 (2022-03-14)
 
 - Major restructuring of the package
@@ -12,3 +17,4 @@
 - Added vignette
 - Added new function, `QPtransform` to pre-process real data.
 - Added new function, `prediction_scores` to evaluate the estimated graph.
+
