@@ -10,5 +10,5 @@ The preferred way to install the package is
 ```{r}
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
-BiocManager::install("learn2count")
+BiocManager::install("drisso/learn2count")
 ```
