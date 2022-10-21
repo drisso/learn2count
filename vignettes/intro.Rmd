@@ -22,7 +22,7 @@ The recommended way to install the `learn2count` package is
 ```{r, eval=FALSE}
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
-BiocManager::install("learn2count")
+BiocManager::install("drisso/learn2count")
 ```
 
 
