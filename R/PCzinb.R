@@ -60,3 +60,28 @@ setMethod(
                zinb1 = zinb1.noT(x, maxcard, alpha, extend))
 
 })
+
+#' @rdname PCzinb
+#' @importFrom SingleCellExperiment `rowPair<-`
+#' @importClassesFrom SingleCellExperiment SingleCellExperiment
+#' @param ... Arguments to pass to the matrix method.
+#' @param whichAssay The assay to use as input for the matrix method.
+#' @export
+#' @examples
+#' library(SingleCellExperiment)
+#' se <- SingleCellExperiment(matrix(rpois(50, 5), ncol=10))
+#' se <- PCzinb(se, method="poi")
+#' rowPair(se)
+setMethod(
+    f = "PCzinb",
+    signature = signature(x = "SingleCellExperiment"),
+    definition = function(x, whichAssay = "processed", ...){
+        if(whichAssay == "processed" & !whichAssay %in% assayNames(x)) {
+            warning("We recommend to use QPtransform() before learning the graph.")
+            whichAssay <- 1
+        }
+        adj <- PCzinb(t(assay(x, whichAssay)), ...)
+        rowPair(x) <- as(adj, "dgCMatrix")
+
+        return(x)
+})

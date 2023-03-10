@@ -1,7 +1,7 @@
 Package: learn2count
 Type: Package
 Title: Structure Learning for Count Data
-Version: 0.2.0
+Version: 0.2.1
 Authors@R: 
     c(person("Davide","Risso", role=c("aut","cre", "cph"), 
           email="risso.davide@gmail.com"),
@@ -21,6 +21,7 @@ Imports:
     methods,
     S4Vectors,
     SummarizedExperiment,
+    SingleCellExperiment,
     Matrix,
     iZID
 Suggests: 
@@ -44,4 +45,4 @@ biocViews:
     Sequencing,
     SingleCell
 BugReports: https://github.com/drisso/learn2count/issues
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3

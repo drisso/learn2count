@@ -4,6 +4,7 @@
 \alias{PCzinb}
 \alias{PCzinb,SummarizedExperiment-method}
 \alias{PCzinb,matrix-method}
+\alias{PCzinb,SingleCellExperiment-method}
 \title{Structure learning for count data}
 \usage{
 PCzinb(x, ...)
@@ -17,6 +18,8 @@ PCzinb(x, ...)
   maxcard = 2,
   extend = TRUE
 )
+
+\S4method{PCzinb}{SingleCellExperiment}(x, whichAssay = "processed", ...)
 }
 \arguments{
 \item{x}{the matrix of counts (n times p) or a SummarizedExperiment containing such matrix (transposed).}
@@ -69,6 +72,10 @@ se <- SummarizedExperiment(matrix(rpois(50, 5), ncol=10))
 PCzinb(se, method="poi")
 mat <- matrix(rpois(50, 5), nrow=10)
 PCzinb(mat, method="poi")
+library(SingleCellExperiment)
+se <- SingleCellExperiment(matrix(rpois(50, 5), ncol=10))
+se <- PCzinb(se, method="poi")
+rowPair(se)
 }
 \references{
 Nguyen, T. K. H., Berge, K. V. D., Chiogna, M., & Risso, D.
