@@ -4,6 +4,7 @@
 \alias{PCzinb}
 \alias{PCzinb,SummarizedExperiment-method}
 \alias{PCzinb,matrix-method}
+\alias{PCzinb,SingleCellExperiment-method}
 \title{Structure learning for count data}
 \usage{
 PCzinb(x, ...)
@@ -18,7 +19,7 @@ PCzinb(x, ...)
   extend = TRUE
 )
 
-\S4method{PCzinb}{SummarizedExperiment}(x, whichAssay = "processed", ...)
+\S4method{PCzinb}{SingleCellExperiment}(x, whichAssay = "processed", ...)
 }
 \arguments{
 \item{x}{the matrix of counts (n times p) or a SummarizedExperiment containing such matrix (transposed).}

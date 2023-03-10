@@ -45,4 +45,4 @@ biocViews:
     Sequencing,
     SingleCell
 BugReports: https://github.com/drisso/learn2count/issues
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
