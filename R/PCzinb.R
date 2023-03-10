@@ -74,7 +74,7 @@ setMethod(
 #' rowPair(se)
 setMethod(
     f = "PCzinb",
-    signature = signature(x = "SummarizedExperiment"),
+    signature = signature(x = "SingleCellExperiment"),
     definition = function(x, whichAssay = "processed", ...){
         if(whichAssay == "processed" & !whichAssay %in% assayNames(x)) {
             warning("We recommend to use QPtransform() before learning the graph.")

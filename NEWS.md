@@ -1,4 +1,4 @@
-# Version 0.2.1 (2022-03-14)
+# Version 0.2.1 (2023-03-10)
 
 - Use `rowPair` slot to store graph rather than metadata
 

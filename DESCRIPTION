@@ -21,6 +21,7 @@ Imports:
     methods,
     S4Vectors,
     SummarizedExperiment,
+    SingleCellExperiment,
     Matrix,
     iZID
 Suggests: 
