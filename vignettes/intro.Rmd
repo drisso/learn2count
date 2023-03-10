@@ -165,10 +165,17 @@ If we want to infer the structure from only $\mu$, then we may specify `method="
 
 Alternatively, one can set `method="nb"` to fit negative binomial models, or `method="poi"` to fit Poisson models. While less flexible, these method are much more computataionally efficient.
 
-We can now visualize the resulting graph, e.g., with the gRbase package.
+The graph is stored in the `rowPair` slot of the `SingleCellExperiment` object as an object of class `SelfHits`.
+
+```{r access}
+rowPair(top)
+```
+
+We can now visualize the resulting graph using, e.g., with the gRbase package.
 
 ```{r visualize}
-graph_est <- graph_from_adjacency_matrix(metadata(top)$adj_mat, mode="undirected")
+graph_est <- graph_from_adjacency_matrix(rowPair(top, asSparse=TRUE),
+                                         mode="undirected")
 plot(graph_est, vertex.size=20, vertex.label.cex=.5)
 ```
 
