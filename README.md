@@ -23,7 +23,7 @@ Please, see the [vignette](vignettes/intro.Rmd) for detailed examples of the pac
 
 The analyses and figures of the Nguyen et al. (2023) paper were done with package version `0.1.3`, which can be found [here](https://github.com/drisso/learn2count/releases/tag/v0.1.3). Please use this version to reproduce the results of the paper.
 
-The analyses and figures of the Nguyen et al. (2022) paper were done with package version `0.3.0`, which can be found [here](). Please use this version to reproduce the results of the paper.
+The analyses and figures of the Nguyen et al. (2022) paper were done with package version `0.3.0`, which can be found [here](https://github.com/drisso/learn2count/releases/tag/v0.3.0). Please use this version to reproduce the results of the paper.
 
 For virtually all other uses, we recommend using the latest stable version of the package (corresponding to the `master` branch).
 
