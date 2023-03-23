@@ -32,7 +32,7 @@ nbscale.noT <- function(X,maxcard,alpha, extend){
                                      zeta.i <- rep(mean(X[,i])^2/(var(X[,i])-mean(X[,i])),n)
                                      ##2. Estimate parameters of nb model with zeta.i given by the first step
                                      fitadd <- try(fitadd <- nb.optim_funnoT (beta_mu= rep(1,p), Y=X[,i], X_mu=X[,-i], zeta.i, n),silent = TRUE)
-                                     if(class(fitadd) == "try-error"){
+                                     if(is(fitadd, "try-error")){
                                        fit <- glm(X[,i]~X[,-i],family = "poisson")
                                        fitadd <- nb.optim_funnoT (beta_mu= fit$coefficients, Y=X[,i], X_mu=X[,-i], zeta.i, n)
                                      }

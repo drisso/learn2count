@@ -1,3 +1,7 @@
+# Version 0.3.0 (2023-03-23)
+
+- Added methods for guided structure learning of DAGs
+
 # Version 0.2.1 (2023-03-10)
 
 - Use `rowPair` slot to store graph rather than metadata
