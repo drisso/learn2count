@@ -1,7 +1,7 @@
 Package: learn2count
 Type: Package
 Title: Structure Learning for Count Data
-Version: 0.2.1
+Version: 0.3.0
 Authors@R: 
     c(person("Davide","Risso", role=c("aut","cre", "cph"), 
           email="risso.davide@gmail.com"),
