@@ -22,7 +22,7 @@ nb.OptimizeDispersion <- function( mu,Y,n) {
                         gr=nb.loglik.dispersion.gradient,mu=mu,
                         Y=Y,control=list(fnscale=-1,trace=0),
                         method="BFGS")$par,silent = TRUE)
-  if (class(zeta.ot) != "try-error"){
+  if (!is(zeta.ot, "try-error")){
     zeta <- zeta.ot
   }else{
     zeta <- zeta.op

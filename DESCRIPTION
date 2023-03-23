@@ -23,7 +23,8 @@ Imports:
     SummarizedExperiment,
     SingleCellExperiment,
     Matrix,
-    iZID
+    iZID,
+    graph
 Suggests: 
     knitr,
     testthat,
