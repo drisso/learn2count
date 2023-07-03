@@ -10,6 +10,7 @@
 #'
 #' @param trueG the adjacency matrix of the true graph.
 #' @param estimatedG the adjacency matrix of the estimated graph.
+#' @param type the type of the true graph, could be "UG" undirected graph, or "DAG" directed acyclic graph.
 #'
 #' @export
 #' @examples
@@ -17,8 +18,9 @@
 #' adj <- matrix(c(0, 1, 1, 1, 0, 1, 1, 1, 0), nrow=3)
 #' mat <- simdata(n=100, p=3, B=adj, mu=5, mu_noise=1)
 #' res <- PCzinb(mat, method="poi", alpha=0.05)
-#' prediction_scores(adj, res)
-prediction_scores <- function(trueG ,estimatedG){
+#' prediction_scores(adj, res, type= "UG")
+prediction_scores <- function(trueG ,estimatedG, type){
+  if (type == "UG"){
     TP <-  sum(trueG *estimatedG)/2
     FP <-  sum((estimatedG-trueG)==1)/2
     FN <- sum((estimatedG-trueG)==-1)/2
@@ -26,4 +28,14 @@ prediction_scores <- function(trueG ,estimatedG){
     Se <- TP/(TP+FN)
     F1 <- 2*(PPV*Se)/(PPV+Se)
     return (c(TP=TP,FP=FP,FN=FN,PPV=PPV,Se=Se,F1=F1))
+  }else{
+    TP <-  sum(trueG *estimatedG)
+    FP <-  sum((estimatedG-trueG)==1)
+    FN <- sum((estimatedG-trueG)==-1)
+    PPV  <- TP/(TP+FP)
+    Se <- TP/(TP+FN)
+    F1 <- 2*(PPV*Se)/(PPV+Se)
+    return (c(TP=TP,FP=FP,FN=FN,PPV=PPV,Se=Se,F1=F1))
+  }
 }
+
