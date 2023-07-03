@@ -79,7 +79,7 @@ plot(graph)
 adj <- as(graph, "matrix")
 ```
 
-We can now use this adjacency matrix to simulate some data, for instance with `n=100` observations.
+We can now use this adjacency matrix to simulate some data, for instance with `n=200` observations.
 
 ```{r sim}
 set.seed(1130)
