@@ -31,4 +31,4 @@ For virtually all other uses, we recommend using the latest stable version of th
 
 Nguyen, Van den Berge, Chiogna, Risso (2023). [Structure learning for zero- inflated counts, with an application to single-cell RNA sequencing data](https://projecteuclid.org/journals/annals-of-applied-statistics/volume-17/issue-3/Structure-learning-for-zero-inflated-counts-with-an-application-to/10.1214/23-AOAS1732.full). _Annals of Applied Statistics_.
 
-Nguyen, Chiogna, Risso, Banzato (2022). Guided structure learning of DAGs for count data. _Statistical Modelling. In print_. [Preprint](https://doi.org/10.48550/arXiv.2206.09754).
+Nguyen, Chiogna, Risso, Banzato (2024). Guided structure learning of DAGs for count data. _Statistical Modelling. In print_. [Preprint](https://doi.org/10.48550/arXiv.2206.09754).
